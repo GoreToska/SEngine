@@ -6,6 +6,14 @@ add_custom_target(shaders ALL)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/build)
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Shaders)
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
 
 FetchContent_Declare(
         DirectXTK
@@ -21,9 +29,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(DirectXTK)
 FetchContent_MakeAvailable(assimp)
-
-set(MY_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Shaders)
-file(MAKE_DIRECTORY ${MY_DIRECTORY})
 
 add_library(${PROJECT_NAME}_lib STATIC
         Source/Render/RenderSubsystem.cpp
@@ -62,7 +67,7 @@ add_library(${PROJECT_NAME}_lib STATIC
         Include/Engine/Timer.h
         Source/Render/ShaderTypes.cpp
         Include/Render/ShaderTypes.h
-        Shaders/Default_Forward_VS.hlsl
+        #Shaders/Default_Forward_VS.hlsl
         Source/Utilities/FileSystemUtilities.cpp
         Include/Utilities/FileSystemUtilities.h
         Include/Render/ConstBuffer.h
@@ -124,7 +129,7 @@ add_executable(${PROJECT_NAME}
         Include/Engine/Timer.h
         Source/Render/ShaderTypes.cpp
         Include/Render/ShaderTypes.h
-        Shaders/Default_Forward_VS.hlsl
+        #Shaders/Default_Forward_VS.hlsl
         Source/Utilities/FileSystemUtilities.cpp
         Include/Utilities/FileSystemUtilities.h
         Include/Render/ConstBuffer.h
