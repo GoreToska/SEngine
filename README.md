@@ -4,7 +4,7 @@ Small game engine made with C++ and DX11.
 # How to build
 ## Install prerequisites
 To build this engine you need to install
-- cmake
+- Cmake (https://cmake.org/)
 - Your compiler (was tested with Ninja & MSVC 2022)
 
 ## Get the source
@@ -15,4 +15,5 @@ To build this engine you need to install
     cd build
     cmake ..
     cmake --build .
+    
 SEngine.exe will be located in build folder.
