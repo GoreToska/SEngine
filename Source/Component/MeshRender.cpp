@@ -24,6 +24,33 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<DWORD>& indice
             this->indices.data(),
             this->indices.size()),
         "Failed to initialize index buffer");
+
+    ThrowIfFailed(
+        objectMaterialBuffer.Initialize(),
+        "Failed to initialize object material buffer.");
+}
+
+Mesh::Mesh(const Mesh& other)
+{
+    vertices = other.vertices;
+    indices = other.indices;
+    material = other.material;
+
+    ThrowIfFailed(
+        vertexBuffer.Initialize(
+            this->vertices.data(),
+            this->vertices.size()),
+        "Failed to initialize vertex buffer");
+
+    ThrowIfFailed(
+        indexBuffer.Initialize(
+            this->indices.data(),
+            this->indices.size()),
+        "Failed to initialize index buffer");
+
+    ThrowIfFailed(
+        objectMaterialBuffer.Initialize(),
+        "Failed to initialize object material buffer.");
 }
 
 void Mesh::Render()
@@ -34,12 +61,19 @@ void Mesh::Render()
         SDeviceContext->PSSetShaderResources(i, 1, &nullResource);
     }
 
-    if (material.diffuseTexture.Get())
-        SDeviceContext->PSSetShaderResources(0, 1, material.diffuseTexture.GetAddressOf());
-    if (material.specularTexture.Get())
-        SDeviceContext->PSSetShaderResources(1, 1, material.specularTexture.GetAddressOf());
-    if (material.normalTexture.Get())
-        SDeviceContext->PSSetShaderResources(2, 1, material.normalTexture.GetAddressOf());
+    if (material.diffuseTexture.GetTextureSRV().Get())
+        SDeviceContext->PSSetShaderResources(0, 1, material.diffuseTexture.GetTextureSRV().GetAddressOf());
+    if (material.specularTexture.GetTextureSRV().Get())
+        SDeviceContext->PSSetShaderResources(1, 1, material.specularTexture.GetTextureSRV().GetAddressOf());
+    if (material.normalTexture.GetTextureSRV().Get())
+        SDeviceContext->PSSetShaderResources(2, 1, material.normalTexture.GetTextureSRV().GetAddressOf());
+
+    SDeviceContext->PSSetConstantBuffers(0, 1, objectMaterialBuffer.GetAddressOf());
+    objectMaterialBuffer.GetData()->diffuseColor = material.diffuseColor;
+    objectMaterialBuffer.GetData()->specularColor = material.specularColor;
+    objectMaterialBuffer.GetData()->emissiveColor = material.emissiveColor;
+    objectMaterialBuffer.GetData()->shininess = material.shininess;
+    objectMaterialBuffer.ApplyChanges();
 
     UINT stride = sizeof(Vertex);
     UINT offset = 0;

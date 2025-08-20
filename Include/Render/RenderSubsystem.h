@@ -23,7 +23,7 @@ public:
     virtual void Initialize(HWND hwnd, int width, int height);
 
     virtual void Render(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
-    std::weak_ptr<CameraComponent> cameraComponent) = 0;
+                        std::weak_ptr<CameraComponent> cameraComponent) = 0;
 
     void RenderShadowMap(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
                          std::weak_ptr<CameraComponent> cameraComponent);

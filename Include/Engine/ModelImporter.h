@@ -21,7 +21,9 @@ public:
 private:
     static void ProcessNode(const aiNode& node, const aiScene& scene, std::vector<Mesh>& out_meshes);
 
-    static Mesh ProcessMesh(const aiMesh& mesh, const aiMaterial& material);
+    static Mesh ProcessMesh(const aiMesh& mesh, const aiScene& scene, const aiMaterial& material);
+
+    static Material GetMaterial(aiTextureType type, const aiMaterial& material);
 };
 
 

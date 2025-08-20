@@ -6,12 +6,15 @@
 
 #include "Engine/Engine.h"
 #include "Render/GraphicsDevice.h"
+#include "Utilities/Asserter.h"
 
 
-IRenderComponent::IRenderComponent(const std::shared_ptr<GameObject>& gameObject, const std::string& vs, const std::string& ps,
-                 const std::string& gs, D3D_PRIMITIVE_TOPOLOGY topology) : gameObject(gameObject), v_shader(vs),
-                                                                           p_shader(ps), g_shader(gs),
-                                                                           topology(topology)
+IRenderComponent::IRenderComponent(const std::shared_ptr<GameObject>& gameObject, const std::string& vs,
+                                   const std::string& ps,
+                                   const std::string& gs, D3D_PRIMITIVE_TOPOLOGY topology) : gameObject(gameObject),
+    v_shader(vs),
+    p_shader(ps), g_shader(gs),
+    topology(topology)
 {
     transform = gameObject->GetComponent<Transform>();
 }

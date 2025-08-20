@@ -27,11 +27,10 @@ struct PS_LightBuffer
 
 struct PS_MaterialBuffer
 {
-    Vector3D ambientLightColor;
-    float ambientLightStrength;
-    Vector3D diffuseColor;
-    Vector3D specularColor;
-    float specularStrength;
+    Vector4D diffuseColor;
+    Vector4D specularColor;
+    Vector4D emissiveColor;
+    float shininess;
 };
 
 struct PS_CascadeShadowsBuffer

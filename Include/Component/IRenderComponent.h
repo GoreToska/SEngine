@@ -6,10 +6,13 @@
 #define IRENDER_H
 #include <memory>
 
-#include "GameObject.h"
+#include "../GameObjects/GameObject.h"
 #include "IComponent.h"
 #include "Transform.h"
+#include "Render/ConstBuffer.h"
 
+
+struct PS_MaterialBuffer;
 
 class IRenderComponent : public IComponent
 {

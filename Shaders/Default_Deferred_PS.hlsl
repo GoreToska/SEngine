@@ -6,7 +6,18 @@ struct PS_IN
     float4 viewPos : POSITION0;
 };
 
-Texture2D objTexture : register(t0);
+cbuffer material : register(b0)
+{
+	float4 diffuseColor;
+    float4 specularColor;
+    float4 emissiveColor;
+    float shininess;   
+}
+
+
+Texture2D diffuseTexture : register(t0);
+Texture2D specularTexture : register(t1);
+Texture2D normalTexture : register(t2);
 SamplerState samplerState : register(s0);
 
 struct GBuffer
@@ -29,12 +40,12 @@ GBuffer main(PS_IN input)
     // ------------------
 
     float depth = (input.viewPos.z - nearPlane) / (farPlane - nearPlane);
-    float4 textureColor = objTexture.Sample(samplerState, input.tex.xy);
+    float4 textureColor = diffuseTexture.Sample(samplerState, input.tex.xy);
 
     buf.depth.xyz = float3(depth, depth, depth);
-    buf.normal.xyz = input.norm;
-    buf.diffuse = float4(1,0,0,1);
-    buf.specular.xyz = float3(1, 1, 1);
+    buf.normal.xyz = input.norm.xyz;
+    buf.diffuse = diffuseColor * textureColor;
+    buf.specular = specularColor;
 
     return buf;
 }

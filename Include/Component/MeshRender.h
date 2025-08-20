@@ -13,7 +13,7 @@ class Mesh
     // TODO: may be every material should have separate shader?
 public:
     Mesh(const std::vector<Vertex>& vertices, const std::vector<DWORD>& indices, const Material& material);
-
+    Mesh(const Mesh& other);
     void Render();
 
     //void SetShaders();
@@ -23,7 +23,9 @@ private:
     std::vector<DWORD> indices;
     VertexBuffer<Vertex> vertexBuffer;
     IndexBuffer indexBuffer;
+
     Material material;
+    ConstBuffer<PS_MaterialBuffer> objectMaterialBuffer;
 };
 
 class MeshRender : public IRenderComponent

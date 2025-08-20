@@ -5,18 +5,33 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 #include <d3d11.h>
+#include <DirectXColors.h>
 #include <wrl/client.h>
+
+#include "Texture.h"
 #include "Engine/EngineTypes.h"
 
 struct Material
 {
-    Vector4D diffuseColor;
-    Vector4D specularColor;
-    Vector4D emissiveColor;
-    float shininess;
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> diffuseTexture;
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalTexture;
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> specularTexture;
+    Material() = default;
+    Material(const Material& other)
+    {
+        diffuseTexture = other.diffuseTexture;
+        specularTexture = other.specularTexture;
+        normalTexture = other.normalTexture;
+        diffuseColor = other.diffuseColor;
+        specularColor = other.specularColor;
+        emissiveColor = other.emissiveColor;
+        shininess = other.shininess;
+    }
+
+    Vector4D diffuseColor = DirectX::Colors::White;
+    Vector4D specularColor = DirectX::Colors::White;
+    Vector4D emissiveColor = DirectX::Colors::Transparent;
+    float shininess = 1.0f;
+    Texture diffuseTexture;
+    Texture normalTexture;
+    Texture specularTexture;
 };
 
 #endif //MATERIAL_H

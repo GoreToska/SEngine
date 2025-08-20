@@ -10,6 +10,7 @@
 
 #include "GraphicsDevice.h"
 #include "Utilities/Logger.h"
+#include "Render/ConstantBufferTypes.h"
 
 
 template<class T>

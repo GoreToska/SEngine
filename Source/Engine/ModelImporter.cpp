@@ -47,7 +47,7 @@ void ModelImporter::ProcessNode(const aiNode& node, const aiScene& scene, std::v
     for (size_t i = 0; i < scene.mNumMeshes; ++i)
     {
         auto mesh = scene.mMeshes[i];
-        out_meshes.emplace_back(ProcessMesh(*mesh, *scene.mMaterials[mesh->mMaterialIndex]));
+        out_meshes.emplace_back(ProcessMesh(*mesh, scene, *scene.mMaterials[mesh->mMaterialIndex]));
     }
 
     for (size_t i = 0; i < node.mNumChildren; ++i)
@@ -56,7 +56,7 @@ void ModelImporter::ProcessNode(const aiNode& node, const aiScene& scene, std::v
     }
 }
 
-Mesh ModelImporter::ProcessMesh(const aiMesh& mesh, const aiMaterial& material)
+Mesh ModelImporter::ProcessMesh(const aiMesh& mesh, const aiScene& scene, const aiMaterial& material)
 {
     std::vector<Vertex> vertices;
     std::vector<DWORD> indices;
@@ -98,5 +98,22 @@ Mesh ModelImporter::ProcessMesh(const aiMesh& mesh, const aiMaterial& material)
     material.Get(AI_MATKEY_COLOR_EMISSIVE, mesh_material.emissiveColor);
     material.Get(AI_MATKEY_SHININESS, mesh_material.shininess);
 
+    mesh_material = GetMaterial(aiTextureType_DIFFUSE, material);
+
     return Mesh(vertices, indices, mesh_material);
+}
+
+Material ModelImporter::GetMaterial(aiTextureType type, const aiMaterial& material)
+{
+    Material res_material;
+    if (material.GetTextureCount(type) == 0)
+    {
+        res_material.diffuseTexture.InitializeTextureWithColor(ERROR_COLOR);
+        return res_material;
+    }
+
+
+    std::cout << "Has texture!" << std::endl;
+    res_material.diffuseTexture.InitializeTextureWithColor(ERROR_COLOR);
+    return res_material;
 }

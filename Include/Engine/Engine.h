@@ -11,7 +11,7 @@
 #include <Windows.h>
 
 #include "Timer.h"
-#include "Component/GameObject.h"
+#include "../GameObjects/GameObject.h"
 #include "Render/Graphics.h"
 #include "Render/WindowContainer.h"
 

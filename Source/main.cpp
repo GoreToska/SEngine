@@ -3,7 +3,7 @@
 //
 
 #include "Component/CameraComponent.h"
-#include "Component/GameObject.h"
+#include "../Include/GameObjects/GameObject.h"
 #include "Component/IRenderComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/ModelImporter.h"
@@ -19,7 +19,7 @@ int main()
     constexpr float resolution = 70;
     SEngine.Initialize(hInstance, applicationName, windowClass, 16 * resolution, 9 * resolution);
     auto go = std::make_shared<GameObject>();
-    go->AddComponent<MeshRender>(go, (modelPath / "NanoSuit/source/Nanosuit_2.glb").string());
+    go->AddComponent<MeshRender>(go, (modelPath / "NanoSuit/nanosuit.obj").string());
     SEngine.SpawnGameObject(go);
 
     /*auto cameraObj = std::make_shared<SCamera>();

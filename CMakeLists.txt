@@ -15,20 +15,31 @@ file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
 file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
 
-FetchContent_Declare(
-        DirectXTK
-        GIT_REPOSITORY https://github.com/microsoft/DirectXTK.git
-        GIT_TAG mar2025
-)
+find_package(assimp QUIET)
+if (NOT assimp_FOUND)
+    message(STATUS "Assimp not found. Fetching from Git.")
+    FetchContent_Declare(
+            assimp
+            GIT_REPOSITORY https://github.com/assimp/assimp.git
+            GIT_TAG v6.0.0
+    )
+    FetchContent_MakeAvailable(assimp)
+else ()
+    message(STATUS "Assimp found.")
+endif ()
 
-FetchContent_Declare(
-        assimp
-        GIT_REPOSITORY https://github.com/assimp/assimp.git
-        GIT_TAG v6.0.0
-)
-
-FetchContent_MakeAvailable(DirectXTK)
-FetchContent_MakeAvailable(assimp)
+find_package(DirectXTK QUIET)
+if (NOT DirectXTK_FOUND)
+    message(STATUS "DirectXTK not found. Fetching from Git.")
+    FetchContent_Declare(
+            DirectXTK
+            GIT_REPOSITORY https://github.com/microsoft/DirectXTK.git
+            GIT_TAG mar2025
+    )
+    FetchContent_MakeAvailable(DirectXTK)
+else ()
+    message(STATUS "DirectXTK found.")
+endif ()
 
 add_library(${PROJECT_NAME}_lib STATIC
         Source/Render/RenderSubsystem.cpp
@@ -55,7 +66,7 @@ add_library(${PROJECT_NAME}_lib STATIC
         Include/Render/GraphicsDevice.h
         Include/Utilities/Asserter.h
         Include/Utilities/StringUtilities.h
-        Include/Component/GameObject.h
+        Include/GameObjects/GameObject.h
         Source/Component/IComponent.cpp
         Include/Component/IComponent.h
         Source/Component/Transform.cpp
@@ -67,7 +78,6 @@ add_library(${PROJECT_NAME}_lib STATIC
         Include/Engine/Timer.h
         Source/Render/ShaderTypes.cpp
         Include/Render/ShaderTypes.h
-        #Shaders/Default_Forward_VS.hlsl
         Source/Utilities/FileSystemUtilities.cpp
         Include/Utilities/FileSystemUtilities.h
         Include/Render/ConstBuffer.h
@@ -87,6 +97,7 @@ add_library(${PROJECT_NAME}_lib STATIC
         Include/Utilities/SMath.h
         Source/GameObjects/FirstPersonPlayer.cpp
         Include/GameObjects/FirstPersonPlayer.h
+        Include/Render/Texture.h
 )
 
 add_executable(${PROJECT_NAME}
@@ -117,7 +128,7 @@ add_executable(${PROJECT_NAME}
         Include/Render/GraphicsDevice.h
         Include/Utilities/Asserter.h
         Include/Utilities/StringUtilities.h
-        Include/Component/GameObject.h
+        Include/GameObjects/GameObject.h
         Source/Component/IComponent.cpp
         Include/Component/IComponent.h
         Source/Component/Transform.cpp
@@ -129,7 +140,6 @@ add_executable(${PROJECT_NAME}
         Include/Engine/Timer.h
         Source/Render/ShaderTypes.cpp
         Include/Render/ShaderTypes.h
-        #Shaders/Default_Forward_VS.hlsl
         Source/Utilities/FileSystemUtilities.cpp
         Include/Utilities/FileSystemUtilities.h
         Include/Render/ConstBuffer.h
@@ -149,6 +159,7 @@ add_executable(${PROJECT_NAME}
         Include/Utilities/SMath.h
         Source/GameObjects/FirstPersonPlayer.cpp
         Include/GameObjects/FirstPersonPlayer.h
+        Include/Render/Texture.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE DirectXTK d3dcompiler dxguid dxgi d3d11 assimp)

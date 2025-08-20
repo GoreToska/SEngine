@@ -42,10 +42,11 @@ void FirstPersonPlayer::Update(const float deltaTime)
     camera->MovePosition((right + forward + up) * deltaTime * moveSpeed);
     camera->AddRotation(Vector3D::Up, deltaTime * mouseSpeed * lookDirection.y);
     camera->AddRotation(camera->GetRight(), deltaTime * mouseSpeed * lookDirection.x);
-
-    std::cout << camera->GetRight().x << " "
-            << camera->GetRight().y << " "
-            << camera->GetRight().z << std::endl;
+    transform->MovePosition((right + forward + up) * deltaTime * moveSpeed);
+    transform->AddRotation(Vector3D::Up, deltaTime * mouseSpeed * lookDirection.y);
+    std::cout << transform->GetPosition().x << " "
+            << transform->GetPosition().y << " "
+            << transform->GetPosition().z << std::endl;
 
     lookDirection = Vector3D(0, 0, 0);
 }
@@ -135,12 +136,12 @@ void FirstPersonPlayer::OnMoveButtonRelease(const unsigned char c)
 
 void FirstPersonPlayer::OnWheelUp(const int x, const int y)
 {
-    moveSpeed += 0.01f;
-    moveSpeed = std::clamp(moveSpeed, 0.0001f, 1.0f);
+    moveSpeed += moveSpeedDelta;
+    moveSpeed = std::clamp(moveSpeed, moveSpeedDelta, 1.0f);
 }
 
 void FirstPersonPlayer::OnWheelDown(const int x, const int y)
 {
-    moveSpeed -= 0.01f;
-    moveSpeed = std::clamp(moveSpeed, 0.0001f, 1.0f);
+    moveSpeed -= moveSpeedDelta;
+    moveSpeed = std::clamp(moveSpeed, moveSpeedDelta, 1.0f);
 }

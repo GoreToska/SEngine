@@ -5,7 +5,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 #include "Component/CameraComponent.h"
-#include "Component/GameObject.h"
+#include "GameObject.h"
 
 
 class SCamera : public GameObject
