@@ -32,15 +32,15 @@ public:
         InitializeTextureWithColor(color);
     }
 
-    Texture(const std::string& filePath, const aiTextureType type)
+    Texture(const std::filesystem::path& filePath, const aiTextureType type)
     {
         this->type = type;
         HRESULT hr;
-        if (GetExtension(filePath) == ".dds")
+        if (filePath.extension() == ".dds")
         {
             hr = DirectX::CreateDDSTextureFromFileEx(
                 SDevice,
-                ToWideString(filePath).c_str(),
+                ToWideString(filePath.string()).c_str(),
                 0,
                 D3D11_USAGE_DEFAULT,
                 D3D11_BIND_SHADER_RESOURCE,
@@ -53,7 +53,7 @@ public:
         }
         else
         {
-            hr = DirectX::CreateWICTextureFromFileEx(SDevice, ToWideString(filePath).c_str(), 0,
+            hr = DirectX::CreateWICTextureFromFileEx(SDevice, ToWideString(filePath.string()).c_str(), 0,
                                                      D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0,
                                                      DirectX::WIC_LOADER_FORCE_SRGB,
                                                      nullptr, textureSRV.GetAddressOf());
@@ -65,14 +65,11 @@ public:
 
     ~Texture()
     {
-        if (texture.Get())
-            texture->Release();
-        if (textureSRV.Get())
-            textureSRV->Release();
     }
 
     void InitializeTextureWithColor(const Color& color)
     {
+        this->color = color;
         texture.Reset();
         textureSRV.Reset();
 
@@ -116,6 +113,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRV;
     aiTextureType type;
+    Color color;
 };
 
 #endif //TEXTURE_H

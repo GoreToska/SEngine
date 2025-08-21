@@ -14,6 +14,7 @@
 struct Material
 {
     Material() = default;
+
     Material(const Material& other)
     {
         diffuseTexture = other.diffuseTexture;
@@ -29,6 +30,7 @@ struct Material
     Vector4D specularColor = DirectX::Colors::White;
     Vector4D emissiveColor = DirectX::Colors::Transparent;
     float shininess = 1.0f;
+
     Texture diffuseTexture;
     Texture normalTexture;
     Texture specularTexture;

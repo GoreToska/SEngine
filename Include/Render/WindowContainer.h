@@ -23,6 +23,8 @@ public:
 
     static LRESULT WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    RenderWindow& GetRenderWindow() const;
+
 protected:
     std::unique_ptr<RenderWindow> renderWindow;
 };

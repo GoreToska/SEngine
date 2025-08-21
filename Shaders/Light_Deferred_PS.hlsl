@@ -27,6 +27,6 @@ SamplerComparisonState shadowSampler : SHADOWSAMPLER : register(s1);
 float4 main(PS_IN input) : SV_Target
 {
     float3 diffuse = diffuseTex.Load(int3(input.pos.xy, 0)).xyz;
-
+	diffuse *= float3(1,1,1) * 4;
     return float4(diffuse, 1);
 }

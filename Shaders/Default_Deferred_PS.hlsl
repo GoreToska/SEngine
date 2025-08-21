@@ -1,9 +1,9 @@
 struct PS_IN
 {
     float4 pos : SV_POSITION;
-    float4 norm : NORMAL;
-    float4 tex : TEXCOORD0;
     float4 viewPos : POSITION0;
+    float4 norm : NORMAL;
+    float2 tex : TEXCOORD0;
 };
 
 cbuffer material : register(b0)
@@ -11,7 +11,7 @@ cbuffer material : register(b0)
 	float4 diffuseColor;
     float4 specularColor;
     float4 emissiveColor;
-    float shininess;   
+    float shininess;
 }
 
 
@@ -36,15 +36,15 @@ GBuffer main(PS_IN input)
     // TODO: move this values to const buffer
     // ------------------
     float nearPlane = 0.1;
-    float farPlane = 1000;
+    float farPlane = 3000;
     // ------------------
 
     float depth = (input.viewPos.z - nearPlane) / (farPlane - nearPlane);
-    float4 textureColor = diffuseTexture.Sample(samplerState, input.tex.xy);
+    float4 textureColor = diffuseTexture.Sample(samplerState, input.tex);
 
     buf.depth.xyz = float3(depth, depth, depth);
-    buf.normal.xyz = input.norm.xyz;
-    buf.diffuse = diffuseColor * textureColor;
+    buf.normal.xyz = input.norm;
+    buf.diffuse =  diffuseColor * textureColor;
     buf.specular = specularColor;
 
     return buf;

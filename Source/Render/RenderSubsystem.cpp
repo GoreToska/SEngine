@@ -46,7 +46,6 @@ void RenderSubsystem::RenderObjects(std::vector<std::weak_ptr<IRenderComponent>>
         return;
     }
 
-    SDeviceContext->VSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
     objectMatrixBuffer.GetData()->view = camera->GetViewMatrix().Transpose();
     objectMatrixBuffer.GetData()->projection = camera->GetProjectionMatrix().Transpose();
     objectMatrixBuffer.GetData()->inverseView = camera->GetViewMatrix().Invert().Transpose();
@@ -54,6 +53,7 @@ void RenderSubsystem::RenderObjects(std::vector<std::weak_ptr<IRenderComponent>>
 
     for (auto it = objectsToRender.begin(); it != objectsToRender.end();)
     {
+        SDeviceContext->VSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
         if (auto component = it->lock())
         {
             // TODO: update const buffers

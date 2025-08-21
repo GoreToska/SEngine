@@ -19,7 +19,8 @@ int main()
     constexpr float resolution = 70;
     SEngine.Initialize(hInstance, applicationName, windowClass, 16 * resolution, 9 * resolution);
     auto go = std::make_shared<GameObject>();
-    go->AddComponent<MeshRender>(go, (modelPath / "NanoSuit/nanosuit.obj").string());
+    go->AddComponent<MeshRender>(go, modelPath / "NanoSuit" / "nanosuit.obj");
+    //go->AddComponent<MeshRender>(go, (modelPath / "Card" / "MemoryCard.obj").string());
     SEngine.SpawnGameObject(go);
 
     /*auto cameraObj = std::make_shared<SCamera>();

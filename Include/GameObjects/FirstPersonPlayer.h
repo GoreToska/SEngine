@@ -26,6 +26,11 @@ private:
     // TODO: move this to input component
     void OnLook(const int x, const int y);
 
+    void OnRightDown(const int x, const int y);
+
+    void OnRightUp(const int x, const int y);
+
+
     // TODO: move this to input component
     void OnMoveButtonPress(const unsigned char c);
 
@@ -50,6 +55,7 @@ private:
     unsigned char rightKey = 'D';
     unsigned char upKey = 'E';
     unsigned char downKey = 'Q';
+    Vector2D lastMousePos;
 };
 
 

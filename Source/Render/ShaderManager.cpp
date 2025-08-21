@@ -112,26 +112,32 @@ Microsoft::WRL::ComPtr<ID3D11InputLayout> ShaderManager::GetInputLayout(const vo
         D3D11_INPUT_ELEMENT_DESC elementDesc = {};
         elementDesc.SemanticName = paramDesc.SemanticName;
         elementDesc.SemanticIndex = paramDesc.SemanticIndex;
+        elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        elementDesc.InputSlot = 0;
+        elementDesc.InstanceDataStepRate = 0;
 
         switch (paramDesc.Mask)
         {
-            case 1: // X
+            case 1:
                 elementDesc.Format = DXGI_FORMAT_R32_FLOAT;
                 elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
                 break;
-            case 3: // XY
+            case 3:
                 elementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
                 elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
                 break;
-            case 7: // XYZ
+            case 7:
                 elementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
                 elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
                 break;
-            case 15: // XYZW
+            case 15:
                 elementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
                 elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
                 break;
         }
+
+        if (i == 0)
+            elementDesc.AlignedByteOffset = 0;
 
         layout.push_back(elementDesc);
     }

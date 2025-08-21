@@ -6,9 +6,11 @@
 
 #include <iostream>
 
+#include "Engine/Engine.h"
 #include "GameObjects/SCamera.h"
 #include "Input/Keyboard.h"
 #include "Input/Mouse.h"
+#include "Render/RenderWindow.h"
 #include "Utilities/SMath.h"
 
 FirstPersonPlayer::FirstPersonPlayer(
@@ -23,6 +25,8 @@ FirstPersonPlayer::FirstPersonPlayer(
     Mouse::Instance().DeltaEvent.AddRaw(this, &FirstPersonPlayer::OnLook);
     Mouse::Instance().WheelUpEvent.AddRaw(this, &FirstPersonPlayer::OnWheelUp);
     Mouse::Instance().WheelDownEvent.AddRaw(this, &FirstPersonPlayer::OnWheelDown);
+    Mouse::Instance().RightPressEvent.AddRaw(this, &FirstPersonPlayer::OnRightDown);
+    Mouse::Instance().RightReleaseEvent.AddRaw(this, &FirstPersonPlayer::OnRightUp);
 }
 
 void FirstPersonPlayer::Update(const float deltaTime)
@@ -44,9 +48,6 @@ void FirstPersonPlayer::Update(const float deltaTime)
     camera->AddRotation(camera->GetRight(), deltaTime * mouseSpeed * lookDirection.x);
     transform->MovePosition((right + forward + up) * deltaTime * moveSpeed);
     transform->AddRotation(Vector3D::Up, deltaTime * mouseSpeed * lookDirection.y);
-    std::cout << transform->GetPosition().x << " "
-            << transform->GetPosition().y << " "
-            << transform->GetPosition().z << std::endl;
 
     lookDirection = Vector3D(0, 0, 0);
 }
@@ -54,6 +55,21 @@ void FirstPersonPlayer::Update(const float deltaTime)
 void FirstPersonPlayer::OnLook(const int x, const int y)
 {
     lookDirection = Vector3D(-y, -x, 0);
+}
+
+void FirstPersonPlayer::OnRightDown(const int x, const int y)
+{
+    SetCapture(SEngine.GetRenderWindow().GetHWND());
+    ShowCursor(false);
+    lastMousePos = Mouse::Instance().GetPosition();
+}
+
+void FirstPersonPlayer::OnRightUp(const int x, const int y)
+{
+    SetCapture(nullptr);
+    ShowCursor(true);
+    SetCursorPos(lastMousePos.x + SEngine.GetRenderWindow().GetWindowRect()->left,
+                 lastMousePos.y + SEngine.GetRenderWindow().GetWindowRect()->top);
 }
 
 void FirstPersonPlayer::OnMoveButtonPress(const unsigned char c)

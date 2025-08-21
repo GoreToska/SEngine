@@ -4,6 +4,8 @@
 
 #include "Component/MeshRender.h"
 
+#include <iostream>
+
 #include "Engine/Engine.h"
 #include "Engine/ModelImporter.h"
 #include "Utilities/Asserter.h"
@@ -80,6 +82,7 @@ void Mesh::Render()
 
     SDeviceContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
 
+
     if (indices.size() > 0)
     {
         SDeviceContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
@@ -91,7 +94,9 @@ void Mesh::Render()
     }
 }
 
-MeshRender::MeshRender(const std::shared_ptr<GameObject>& gameObject, const std::string& path, const std::string& vs,
+MeshRender::MeshRender(const std::shared_ptr<GameObject>& gameObject,
+                       const std::filesystem::path& path,
+                       const std::string& vs,
                        const std::string& ps, const std::string& gs, D3D_PRIMITIVE_TOPOLOGY topology)
     : Super(gameObject, vs, ps, gs, topology)
 {

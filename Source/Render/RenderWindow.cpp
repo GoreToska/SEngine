@@ -149,6 +149,31 @@ LRESULT RenderWindow::HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
     }
 }
 
+std::shared_ptr<RECT> RenderWindow::GetWindowRect() const
+{
+    auto rect = std::make_shared<RECT>();
+    GetClientRect(hWindow, rect.get());
+
+    POINT ul;
+    ul.x = rect->left;
+    ul.y = rect->top;
+
+    POINT lr;
+    lr.x = rect->right;
+    lr.y = rect->bottom;
+
+    MapWindowPoints(hWindow, nullptr, &ul, 1);
+    MapWindowPoints(hWindow, nullptr, &lr, 1);
+
+    rect->left = ul.x;
+    rect->top = ul.y;
+
+    rect->right = lr.x;
+    rect->bottom = lr.y;
+
+    return rect;
+}
+
 HWND& RenderWindow::GetHWND()
 {
     return hWindow;

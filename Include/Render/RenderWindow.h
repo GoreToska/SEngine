@@ -5,6 +5,7 @@
 #ifndef RENDERWINDOW_H
 #define RENDERWINDOW_H
 
+#include <memory>
 #include <string>
 #include <Windows.h>
 
@@ -27,6 +28,8 @@ public:
     HWND& GetHWND();
 
     HINSTANCE& GetHINST();
+
+    std::shared_ptr<RECT> GetWindowRect() const;
 
 protected:
     int width, height;

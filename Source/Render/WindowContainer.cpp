@@ -20,8 +20,9 @@ WindowContainer::~WindowContainer()
     renderWindow.release();
 }
 
-void WindowContainer::InitializeWindowContainer(HINSTANCE hinstance, std::string title, std::string window_class, int width,
-                                 int height)
+void WindowContainer::InitializeWindowContainer(HINSTANCE hinstance, std::string title, std::string window_class,
+                                                int width,
+                                                int height)
 {
     if (!renderWindow->Initialize(*this, hinstance, title, window_class, width, height))
     {
@@ -212,4 +213,9 @@ LRESULT WindowContainer::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             break;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+RenderWindow& WindowContainer::GetRenderWindow() const
+{
+    return *renderWindow.get();
 }
