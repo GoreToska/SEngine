@@ -16,7 +16,9 @@
 void ModelImporter::LoadModel(const std::filesystem::path& path, std::vector<Mesh>& out_meshes)
 {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path.string(), aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
+    const aiScene* scene = importer.ReadFile(path.string(),
+                                             aiProcess_Triangulate |
+                                             aiProcess_ConvertToLeftHanded);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -77,19 +79,22 @@ Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh&
         vertex.normal.y = mesh.mNormals[i].y;
         vertex.normal.z = mesh.mNormals[i].z;
 
-        vertex.texCoord.x = mesh.mTextureCoords[0] ? mesh.mTextureCoords[0][i].x : 0.0f;
-        vertex.texCoord.y = mesh.mTextureCoords[0] ? mesh.mTextureCoords[0][i].y : 0.0f;
+        if (mesh.mTextureCoords[0])
+        {
+            vertex.texCoord.x = mesh.mTextureCoords[0][i].x;
+            vertex.texCoord.y = mesh.mTextureCoords[0][i].y;
+        }
 
         vertices.emplace_back(vertex);
     }
 
-    for (size_t i = 0; i < mesh.mNumFaces; ++i)
+    for (int i = 0; i < mesh.mNumFaces; ++i)
     {
         const aiFace face = mesh.mFaces[i];
 
-        for (size_t j = 0; j < face.mNumIndices; ++j)
+        for (int j = face.mNumIndices - 1; j >= 0; --j)
         {
-            indices.emplace_back(face.mIndices[j]);
+            indices.push_back(face.mIndices[j]);
         }
     }
 

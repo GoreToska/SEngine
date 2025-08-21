@@ -155,7 +155,7 @@ void RenderSubsystem::CreateRasterizerAndBlendState()
 {
     D3D11_RASTERIZER_DESC rasterizerDesc{};
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-    rasterizerDesc.CullMode = D3D11_CULL_NONE;
+    rasterizerDesc.CullMode = D3D11_CULL_BACK;
 
     ThrowIfFailed(
         SDevice->CreateRasterizerState(
