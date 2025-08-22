@@ -55,6 +55,57 @@ Mesh::Mesh(const Mesh& other)
         "Failed to initialize object material buffer.");
 }
 
+Mesh::Mesh(Mesh&& other) noexcept
+    : vertices(std::move(other.vertices)),
+      indices(std::move(other.indices)),
+      vertexBuffer(std::move(other.vertexBuffer)),
+      indexBuffer(std::move(other.indexBuffer)),
+      material(std::move(other.material)),
+      objectMaterialBuffer(std::move(other.objectMaterialBuffer))
+
+{
+    other.vertices.clear();
+    other.indices.clear();
+}
+
+Mesh& Mesh::operator=(const Mesh& other)
+{
+    vertices = other.vertices;
+    indices = other.indices;
+    material = other.material;
+
+    ThrowIfFailed(
+        vertexBuffer.Initialize(
+            this->vertices.data(),
+            this->vertices.size()),
+        "Failed to initialize vertex buffer");
+
+    ThrowIfFailed(
+        indexBuffer.Initialize(
+            this->indices.data(),
+            this->indices.size()),
+        "Failed to initialize index buffer");
+
+    ThrowIfFailed(
+        objectMaterialBuffer.Initialize(),
+        "Failed to initialize object material buffer.");
+
+    return *this;
+}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept
+{
+    vertices = std::move(other.vertices);
+    indices = std::move(other.indices);
+    material = std::move(other.material);
+    vertexBuffer = std::move(other.vertexBuffer);
+    indexBuffer = std::move(other.indexBuffer);
+    objectMaterialBuffer = std::move(other.objectMaterialBuffer);
+    other.vertices.clear();
+    other.indices.clear();
+    return *this;
+}
+
 void Mesh::Render()
 {
     ID3D11ShaderResourceView* nullResource = nullptr;

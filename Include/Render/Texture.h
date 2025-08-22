@@ -26,6 +26,50 @@ public:
         InitializeTextureWithColor({255, 255, 255, 255});
     }
 
+    Texture(const Texture& other)
+        : texture(other.texture),
+          textureSRV(other.textureSRV),
+          type(other.type),
+          color(other.color)
+    {
+    }
+
+    Texture(Texture&& other) noexcept
+        : texture(std::move(other.texture)),
+          textureSRV(std::move(other.textureSRV)),
+          type(std::move(other.type)),
+          color(std::move(other.color))
+    {
+        other.textureSRV = nullptr;
+        other.texture = nullptr;
+    }
+
+    Texture& operator=(const Texture& other)
+    {
+        if (this == &other)
+            return *this;
+
+        texture = other.texture;
+        textureSRV = other.textureSRV;
+        type = other.type;
+        color = other.color;
+        return *this;
+    }
+
+    Texture& operator=(Texture&& other) noexcept
+    {
+        if (this == &other)
+            return *this;
+
+        texture = std::move(other.texture);
+        textureSRV = std::move(other.textureSRV);
+        type = std::move(other.type);
+        color = std::move(other.color);
+        other.textureSRV = nullptr;
+        other.texture = nullptr;
+        return *this;
+    }
+
     Texture(const Color& color, const aiTextureType type)
     {
         this->type = type;

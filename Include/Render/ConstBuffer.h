@@ -16,11 +16,42 @@
 template<class T>
 class ConstBuffer
 {
-    ConstBuffer(const ConstBuffer<T>& rhs);
-
 public:
     ConstBuffer()
     {
+    }
+
+    ConstBuffer(const ConstBuffer<T>& other)
+        : data(other.data)
+    {
+        Initialize();
+        ApplyChanges();
+    }
+
+    ConstBuffer(ConstBuffer<T>&& other) noexcept
+        : buffer(std::move(other.buffer)), data(std::move(other.data))
+    {
+        other.data = T{};
+    }
+
+    ConstBuffer& operator =(const ConstBuffer<T>& other)
+    {
+        buffer = other.buffer;
+        data = other.data;
+        Initialize();
+        ApplyChanges();
+        return *this;
+    }
+
+    ConstBuffer& operator =(ConstBuffer<T>&& other) noexcept
+    {
+        if (this == &other)
+            return *this;
+
+        buffer = std::move(other.buffer);
+        data = std::move(other.data);
+        other.data = T{};
+        return *this;
     }
 
     void SetData(T data)

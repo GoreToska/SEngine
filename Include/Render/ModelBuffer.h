@@ -38,18 +38,46 @@ public:
     {
     }
 
-    VertexBuffer(const VertexBuffer& rhs)
-    {
-        this->buffer = rhs.buffer;
-        this->stride = rhs.stride;
-        this->bufferSize = rhs.bufferSize;
-    }
-
-    VertexBuffer& operator =(const VertexBuffer& other)
+    VertexBuffer(const VertexBuffer& other)
     {
         this->buffer = other.buffer;
         this->stride = other.stride;
         this->bufferSize = other.bufferSize;
+    }
+
+    VertexBuffer(VertexBuffer&& other) noexcept
+        : buffer(std::move(other.buffer)),
+          stride(std::move(other.stride)),
+          bufferSize(std::move(other.bufferSize))
+    {
+        other.buffer = nullptr;
+        other.stride = 0;
+        other.bufferSize = 0;
+    }
+
+    VertexBuffer& operator =(const VertexBuffer& other)
+    {
+        if (this == &other)
+            return *this;
+
+        this->buffer = other.buffer;
+        this->stride = other.stride;
+        this->bufferSize = other.bufferSize;
+        
+        return *this;
+    }
+
+    VertexBuffer& operator =(VertexBuffer&& other) noexcept
+    {
+        if (this == &other)
+            return *this;
+
+        this->buffer = std::move(other.buffer);
+        this->stride = std::move(other.stride);
+        this->bufferSize = std::move(other.bufferSize);
+        other.buffer = nullptr;
+        other.stride = 0;
+        other.bufferSize = 0;
         return *this;
     }
 
@@ -68,14 +96,9 @@ public:
         return bufferSize;
     }
 
-    UINT Stride() const
+    UINT StridePtr() const
     {
-        return *stride.get();
-    }
-
-    const UINT* StridePtr() const
-    {
-        return stride.get();
+        return stride;
     }
 
     HRESULT Initialize(T* data, UINT numVertices)
@@ -86,7 +109,7 @@ public:
         }
 
         bufferSize = numVertices;
-        stride = std::make_shared<UINT>(sizeof(T));
+        stride = sizeof(T);
 
         CD3D11_BUFFER_DESC vertexBufferDesc{};
         vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -105,7 +128,7 @@ public:
 
 private:
     Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
-    std::shared_ptr<UINT> stride;
+    UINT stride;
     UINT bufferSize = 0;
 };
 

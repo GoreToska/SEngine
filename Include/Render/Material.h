@@ -16,14 +16,55 @@ struct Material
     Material() = default;
 
     Material(const Material& other)
+        : diffuseColor(other.diffuseColor),
+          specularColor(other.specularColor),
+          emissiveColor(other.emissiveColor),
+          shininess(other.shininess),
+          diffuseTexture(other.diffuseTexture),
+          normalTexture(other.normalTexture),
+          specularTexture(other.specularTexture)
     {
-        diffuseTexture = other.diffuseTexture;
-        specularTexture = other.specularTexture;
-        normalTexture = other.normalTexture;
+    }
+
+    Material(Material&& other) noexcept
+        : diffuseColor(std::move(other.diffuseColor)),
+          specularColor(std::move(other.specularColor)),
+          emissiveColor(std::move(other.emissiveColor)),
+          shininess(std::move(other.shininess)),
+          diffuseTexture(std::move(other.diffuseTexture)),
+          normalTexture(std::move(other.normalTexture)),
+          specularTexture(std::move(other.specularTexture))
+    {
+    }
+
+    Material& operator=(const Material& other)
+    {
+        if (this == &other)
+            return *this;
+
         diffuseColor = other.diffuseColor;
         specularColor = other.specularColor;
         emissiveColor = other.emissiveColor;
         shininess = other.shininess;
+        diffuseTexture = other.diffuseTexture;
+        normalTexture = other.normalTexture;
+        specularTexture = other.specularTexture;
+        return *this;
+    }
+
+    Material& operator=(Material&& other) noexcept
+    {
+        if (this == &other)
+            return *this;
+
+        diffuseColor = std::move(other.diffuseColor);
+        specularColor = std::move(other.specularColor);
+        emissiveColor = std::move(other.emissiveColor);
+        shininess = std::move(other.shininess);
+        diffuseTexture = std::move(other.diffuseTexture);
+        normalTexture = std::move(other.normalTexture);
+        specularTexture = std::move(other.specularTexture);
+        return *this;
     }
 
     Vector4D diffuseColor = DirectX::Colors::White;

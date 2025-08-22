@@ -13,7 +13,15 @@ class Mesh
     // TODO: may be every material should have separate shader?
 public:
     Mesh(const std::vector<Vertex>& vertices, const std::vector<DWORD>& indices, const Material& material);
+
     Mesh(const Mesh& other);
+
+    Mesh(Mesh&& other) noexcept;
+
+    Mesh& operator=(const Mesh& other);
+
+    Mesh& operator=(Mesh&& other) noexcept;
+
     void Render();
 
     //void SetShaders();
