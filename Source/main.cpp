@@ -24,6 +24,11 @@ int main()
     go->AddComponent<MeshRender>(go, (modelPath / "Card" / "MemoryCard.obj").string());
     SEngine.SpawnGameObject(go);
 
+    auto go2 = std::make_shared<GameObject>(Vector3D(10, 0, 0));
+    go2->AddComponent<MeshRender>(go2, modelPath / "NanoSuit" / "nanosuit.obj");
+    SEngine.SpawnGameObject(go2);
+
+
     /*auto cameraObj = std::make_shared<SCamera>();
     SEngine.SpawnGameObject(cameraObj);
     SEngine.GetGraphics().SetCurrentCamera(cameraObj->GetCamera());*/
