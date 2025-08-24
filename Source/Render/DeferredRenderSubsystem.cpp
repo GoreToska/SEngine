@@ -4,6 +4,7 @@
 
 #include "Render/DeferredRenderSubsystem.h"
 
+#include "Component/DirectionalLightComponent.h"
 #include "Engine/Engine.h"
 #include "Render/ModelBuffer.h"
 #include "Render/ShaderManager.h"
@@ -15,7 +16,8 @@ void DeferredRenderSubsystem::Initialize(HWND hwnd, int width, int height)
 }
 
 void DeferredRenderSubsystem::Render(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
-                                     const std::weak_ptr<CameraComponent> cameraComponent)
+                                     const std::weak_ptr<CameraComponent> cameraComponent,
+                                     std::vector<std::weak_ptr<LightComponent>>& lightComponents)
 {
     gBuffer->ClearRenderTargets();
     SDeviceContext->RSSetViewports(1, &viewport);
@@ -28,23 +30,67 @@ void DeferredRenderSubsystem::Render(std::vector<std::weak_ptr<IRenderComponent>
     RenderObjects(objectsToRender, cameraComponent);
 
     // todo: render light
-    DrawLight();
+    DrawLight(lightComponents);
 
     // todo: render particles
 
     swapchain->Present(1, NULL);
 }
 
-void DeferredRenderSubsystem::DrawLight()
+void DeferredRenderSubsystem::DrawLight(std::vector<std::weak_ptr<LightComponent>>& lightComponents)
 {
     SDeviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), nullptr);
     SDeviceContext->RSSetState(rasterizerState.Get());
     SDeviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
     SDeviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
     SDeviceContext->PSSetSamplers(1, 1, shadowSamplerState.GetAddressOf());
+    SDeviceContext->PSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
     gBuffer->PSBindResourceViews(2);
 
-    DrawFullScreenQuad();
+    for (auto it = lightComponents.begin(); it != lightComponents.end();)
+    {
+        if (auto comp = it->lock())
+        {
+            objectMatrixBuffer.GetData()->world = comp->GetTransform().lock()->GetWorldMatrix().Transpose();
+            objectMatrixBuffer.ApplyChanges();
+            SetLightBuffer(comp);
+            DrawFullScreenQuad();
+            ++it;
+        }
+        else
+        {
+            lightComponents.erase(it);
+        }
+    }
+}
+
+void DeferredRenderSubsystem::SetLightBuffer(std::shared_ptr<LightComponent>& lightComponent)
+{
+    SDeviceContext->PSSetConstantBuffers(1, 1, lightBuffer.GetAddressOf());
+
+    if (lightComponent->GetLightType() == LightComponent::Directional)
+    {
+        const auto light = std::static_pointer_cast<DirectionalLightComponent>(lightComponent);
+        lightBuffer.GetData()->lightColor = light->GetColor();
+        lightBuffer.GetData()->lightDirection = Vector4D(light->GetDirection());
+        lightBuffer.GetData()->lightPosition = light->GetPosition();
+        lightBuffer.GetData()->sourceType = light->GetLightType();
+        lightBuffer.GetData()->intensity = light->GetIntensity();
+        lightBuffer.ApplyChanges();
+        return;
+    }
+
+    if (lightComponent->GetLightType() == LightComponent::Point)
+    {
+        SERROR("Point light is not implemented.");
+        return;
+    }
+
+    if (lightComponent->GetLightType() == LightComponent::Spot)
+    {
+        SERROR("Spot light is not implemented.");
+        return;
+    }
 }
 
 void DeferredRenderSubsystem::DrawFullScreenQuad()

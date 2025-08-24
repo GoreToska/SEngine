@@ -48,7 +48,7 @@ void Graphics::RenderFrame()
 {
     render_subsystem->RenderShadowMap(renderObjects, currentCamera);
 
-    render_subsystem->Render(renderObjects, currentCamera);
+    render_subsystem->Render(renderObjects, currentCamera, lightObjects);
 }
 
 void Graphics::RenderParticles()
@@ -70,6 +70,11 @@ ShaderManager& Graphics::GetShaderManager() const
 void Graphics::AddObjectToRenderPool(std::shared_ptr<IRenderComponent> object)
 {
     renderObjects.emplace_back(object);
+}
+
+void Graphics::AddLightToLightPool(std::shared_ptr<LightComponent> object)
+{
+    lightObjects.emplace_back(object);
 }
 
 void Graphics::AddCamera(const std::weak_ptr<CameraComponent>& camera)

@@ -4,7 +4,8 @@
 
 #include "Component/Transform.h"
 
-Transform::Transform(const Vector3D position, const Quaternion rotation, const Vector3D scale)
+Transform::Transform(const Vector3D position, const Quaternion rotation,
+                     const Vector3D scale)
     : position(position), rotation(rotation), scale(scale)
 {
     objectMatrix = CalculateWorldMatrix();
@@ -92,6 +93,7 @@ Matrix Transform::GetWorldMatrix() const
 
 Vector3D Transform::GetForward() const
 {
+    auto a = objectMatrix.Forward();
     return objectMatrix.Forward();
 }
 

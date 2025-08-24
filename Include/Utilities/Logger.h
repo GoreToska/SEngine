@@ -10,6 +10,7 @@
 #include <comdef.h>
 #include <d3dcommon.h>
 #include <filesystem>
+#include <iostream>
 #include <sstream>
 #include <wrl/client.h>
 
@@ -17,6 +18,8 @@
 #define SERROR(...) slog::Error(__VA_ARGS__, __FILE__, __LINE__)
 
 #define SSHADERERROR(...) slog::HandleShaderCompilationError(__VA_ARGS__, __FILE__, __LINE__)
+
+#define SNOTIFY(...) slog::Notify(__VA_ARGS__, __FILE__, __LINE__)
 
 #define SLOG(...) slog::Log(__VA_ARGS__, __FILE__, __LINE__)
 
@@ -72,11 +75,18 @@ namespace slog
         }
     }
 
-    inline void Log(const std::string& message, const char* file, int line)
+    inline void Notify(const std::string& message, const char* file, int line)
     {
         std::string filename = std::filesystem::path(file).filename().string();
         std::string log_message = message + "\nFile: " + filename + "\nLine: " + std::to_string(line);
         MessageBoxA(NULL, log_message.c_str(), "Log", MB_OK | MB_ICONINFORMATION);
+    }
+
+    inline void Log(const std::string& message, const char* file, int line)
+    {
+        std::string filename = std::filesystem::path(file).filename().string();
+        std::string log_message = message + "\nFile: " + filename + "\nLine: " + std::to_string(line);
+        std::cout << log_message << "\n";
     }
 }
 

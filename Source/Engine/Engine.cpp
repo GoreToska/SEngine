@@ -120,6 +120,9 @@ void Engine::SpawnGameObject(std::shared_ptr<GameObject> object)
     if (const auto comp = object->GetComponent<IRenderComponent>())
         graphics->AddObjectToRenderPool(comp);
 
+    if (const auto comp = object->GetComponent<LightComponent>())
+        graphics->AddLightToLightPool(comp);
+
     if (const auto comp = object->GetComponent<CameraComponent>())
         graphics->AddCamera(comp);
 

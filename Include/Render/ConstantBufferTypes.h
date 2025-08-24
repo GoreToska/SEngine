@@ -17,12 +17,12 @@ struct VS_ObjectBuffer
 
 struct PS_LightBuffer
 {
-    Vector3D lightColor = {1.0f, 0.0f, 0.0f};
-    float lightStrength = 1;
+    Vector3D lightColor;
+    float intensity;
     Vector4D lightDirection;
     Vector3D lightPosition;
     int sourceType;
-    float angle;
+    float coneWidth;
 };
 
 struct PS_MaterialBuffer
@@ -30,6 +30,7 @@ struct PS_MaterialBuffer
     Vector4D diffuseColor;
     Vector4D specularColor;
     Vector4D emissiveColor;
+    BOOL normalMapEnabled;
     float shininess;
 };
 

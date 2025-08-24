@@ -14,6 +14,7 @@
 #include "ConstBuffer.h"
 #include "SimpleMath.h"
 #include "Component/IRenderComponent.h"
+#include "Component/LightComponent.h"
 
 class CameraComponent;
 
@@ -23,7 +24,8 @@ public:
     virtual void Initialize(HWND hwnd, int width, int height);
 
     virtual void Render(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
-                        std::weak_ptr<CameraComponent> cameraComponent) = 0;
+                        std::weak_ptr<CameraComponent> cameraComponent,
+                        std::vector<std::weak_ptr<LightComponent>>& lightComponents) = 0;
 
     void RenderShadowMap(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
                          std::weak_ptr<CameraComponent> cameraComponent);
@@ -71,6 +73,7 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSamplerState;
 
     ConstBuffer<VS_ObjectBuffer> objectMatrixBuffer;
+    ConstBuffer<PS_LightBuffer> lightBuffer;
 
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> NoWriteNoCheckDSS;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> NoWriteGreaterDSS;

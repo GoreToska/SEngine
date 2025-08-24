@@ -24,6 +24,8 @@ struct Vertex
 {
     Vector3D position;
     Vector3D normal;
+    Vector3D tangent;
+    Vector3D bitangent;
     Vector2D texCoord;
 };
 

@@ -119,12 +119,16 @@ void Mesh::Render()
     if (material.specularTexture.GetTextureSRV().Get())
         SDeviceContext->PSSetShaderResources(1, 1, material.specularTexture.GetTextureSRV().GetAddressOf());
     if (material.normalTexture.GetTextureSRV().Get())
+    {
         SDeviceContext->PSSetShaderResources(2, 1, material.normalTexture.GetTextureSRV().GetAddressOf());
+        SDeviceContext->VSSetShaderResources(0, 1, material.normalTexture.GetTextureSRV().GetAddressOf());
+    }
 
     SDeviceContext->PSSetConstantBuffers(0, 1, objectMaterialBuffer.GetAddressOf());
     objectMaterialBuffer.GetData()->diffuseColor = material.diffuseColor;
     objectMaterialBuffer.GetData()->specularColor = material.specularColor;
     objectMaterialBuffer.GetData()->emissiveColor = material.emissiveColor;
+    objectMaterialBuffer.GetData()->normalMapEnabled = material.normalMapEnabled;
     objectMaterialBuffer.GetData()->shininess = material.shininess;
     objectMaterialBuffer.ApplyChanges();
 

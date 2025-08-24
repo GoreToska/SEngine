@@ -11,6 +11,7 @@
 #include "ShaderManager.h"
 #include "Component/CameraComponent.h"
 #include "Component/IRenderComponent.h"
+#include "Component/LightComponent.h"
 #include "Utilities/SMath.h"
 
 class Graphics
@@ -33,6 +34,8 @@ public:
     ShaderManager& GetShaderManager() const;
 
     void AddObjectToRenderPool(std::shared_ptr<IRenderComponent> object);
+
+    void AddLightToLightPool(std::shared_ptr<LightComponent> object);
 
     void AddCamera(const std::weak_ptr<CameraComponent>& camera);
 
@@ -67,6 +70,8 @@ private:
     std::unique_ptr<ShaderManager> shader_manager;
 
     std::vector<std::weak_ptr<IRenderComponent>> renderObjects;
+    std::vector<std::weak_ptr<LightComponent>> lightObjects;
+
     std::set<std::weak_ptr<CameraComponent>, smath::WeakPtrComparator> cameraComponents;
     std::weak_ptr<CameraComponent> currentCamera;
 };

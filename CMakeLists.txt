@@ -98,6 +98,12 @@ add_library(${PROJECT_NAME}_lib STATIC
         Source/GameObjects/FirstPersonPlayer.cpp
         Include/GameObjects/FirstPersonPlayer.h
         Include/Render/Texture.h
+        Source/Component/LightComponent.cpp
+        Include/Component/LightComponent.h
+        Source/Component/DirectionalLightComponent.cpp
+        Include/Component/DirectionalLightComponent.h
+        Source/GameObjects/DirectionalLight.cpp
+        Include/GameObjects/DirectionalLight.h
 )
 
 add_executable(${PROJECT_NAME}
@@ -160,6 +166,12 @@ add_executable(${PROJECT_NAME}
         Source/GameObjects/FirstPersonPlayer.cpp
         Include/GameObjects/FirstPersonPlayer.h
         Include/Render/Texture.h
+        Source/Component/LightComponent.cpp
+        Include/Component/LightComponent.h
+        Source/Component/DirectionalLightComponent.cpp
+        Include/Component/DirectionalLightComponent.h
+        Source/GameObjects/DirectionalLight.cpp
+        Include/GameObjects/DirectionalLight.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE DirectXTK d3dcompiler dxguid dxgi d3d11 assimp)

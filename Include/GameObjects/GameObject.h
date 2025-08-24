@@ -43,6 +43,8 @@ public:
         if (!IsEnabled())
             return;
 
+        transform->Update(deltaTime);
+
         for (const auto& component: components)
         {
             component.second->Update(deltaTime);

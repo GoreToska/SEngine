@@ -38,7 +38,7 @@ private:
     static Texture GetColorTexture(const aiMaterial& material, aiTextureType type);
 
     static Texture GetTexture(const std::filesystem::path& path, const aiScene& scene, const aiMaterial& material,
-                              aiTextureType type);
+                              aiTextureType type, BOOL& has_texture);
 
     static TextureStorage GetTextureStorageType(const aiScene& scene, const aiMaterial& material,
                                                 size_t index, aiTextureType type);

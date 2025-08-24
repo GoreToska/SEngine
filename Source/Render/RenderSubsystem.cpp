@@ -15,6 +15,7 @@ void RenderSubsystem::Initialize(HWND hwnd, int width, int height)
     clientHeight = height;
     InitializeDirectX(hwnd);
     ThrowIfFailed(objectMatrixBuffer.Initialize(), "Failed to initialize buffer.");
+    ThrowIfFailed(lightBuffer.Initialize(), "Failed to initialize light buffer.");
 }
 
 // TODO: render shadow map should take light component, not camera component
@@ -54,6 +55,7 @@ void RenderSubsystem::RenderObjects(std::vector<std::weak_ptr<IRenderComponent>>
     for (auto it = objectsToRender.begin(); it != objectsToRender.end();)
     {
         SDeviceContext->VSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
+
         if (auto component = it->lock())
         {
             // TODO: update const buffers

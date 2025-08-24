@@ -15,12 +15,19 @@
 
 void ModelImporter::LoadModel(const std::filesystem::path& path, std::vector<Mesh>& out_meshes)
 {
+    if (path.empty())
+    {
+        SLOG("This path is empty, can't load model.");
+        return;
+    }
+
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path.string(),
                                              aiProcess_Triangulate |
                                              aiProcess_ConvertToLeftHanded |
                                              aiProcess_GenNormals |
-                                             aiProcess_JoinIdenticalVertices);
+                                             aiProcess_JoinIdenticalVertices |
+                                             aiProcess_CalcTangentSpace);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -81,6 +88,14 @@ Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh&
         vertex.normal.y = mesh.mNormals[i].y;
         vertex.normal.z = mesh.mNormals[i].z;
 
+        vertex.tangent.x = mesh.mTangents[i].x;
+        vertex.tangent.y = mesh.mTangents[i].y;
+        vertex.tangent.z = mesh.mTangents[i].z;
+
+        vertex.bitangent.x = mesh.mBitangents[i].x;
+        vertex.bitangent.y = mesh.mBitangents[i].y;
+        vertex.bitangent.z = mesh.mBitangents[i].z;
+
         if (mesh.mTextureCoords[0])
         {
             vertex.texCoord.x = mesh.mTextureCoords[0][i].x;
@@ -106,9 +121,11 @@ Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh&
     material.Get(AI_MATKEY_COLOR_EMISSIVE, mesh_material.emissiveColor);
     material.Get(AI_MATKEY_SHININESS, mesh_material.shininess);
 
-    mesh_material.diffuseTexture = GetTexture(path, scene, material, aiTextureType_DIFFUSE);
-    mesh_material.specularTexture = GetTexture(path, scene, material, aiTextureType_SPECULAR);
-    mesh_material.normalTexture = GetTexture(path, scene, material, aiTextureType_NORMALS);
+    BOOL has_texture;
+    mesh_material.diffuseTexture = GetTexture(path, scene, material, aiTextureType_DIFFUSE, has_texture);
+    mesh_material.specularTexture = GetTexture(path, scene, material, aiTextureType_SPECULAR, has_texture);
+    mesh_material.normalTexture = GetTexture(path, scene, material, aiTextureType_NORMALS,
+                                             mesh_material.normalMapEnabled);
     return Mesh(vertices, indices, mesh_material);
 }
 
@@ -144,29 +161,30 @@ Texture ModelImporter::GetColorTexture(const aiMaterial& material, aiTextureType
 }
 
 Texture ModelImporter::GetTexture(const std::filesystem::path& path, const aiScene& scene, const aiMaterial& material,
-                                  aiTextureType type)
+                                  aiTextureType type, BOOL& has_texture)
 {
     Texture texture;
     if (material.GetTextureCount(type) == 0)
     {
+        has_texture = FALSE;
         return GetColorTexture(material, type);
     }
-    else
+
+    // TODO: we can have any count of textures blended together
+    // We should consider to use foreach loop
+    // But for now this should work fine
+    aiString texturePath;
+    material.GetTexture(type, 0, &texturePath);
+    TextureStorage storageType = GetTextureStorageType(scene, material, 0, type);
+    has_texture = TRUE;
+
+    switch (storageType)
     {
-        // TODO: we can have any count of textures blended together
-        // We should consider to use foreach loop
-        // But for now this should work fine
-        aiString texturePath;
-        material.GetTexture(type, 0, &texturePath);
-        TextureStorage storageType = GetTextureStorageType(scene, material, 0, type);
-        switch (storageType)
+        case Disk:
         {
-            case Disk:
-            {
-                std::string fileName = (path.parent_path() / texturePath.C_Str()).string();
-                std::cout << fileName << std::endl;
-                return Texture(fileName, type);
-            }
+            std::string fileName = (path.parent_path() / texturePath.C_Str()).string();
+            std::cout << fileName << std::endl;
+            return Texture(fileName, type);
         }
     }
 

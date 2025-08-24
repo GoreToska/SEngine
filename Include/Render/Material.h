@@ -19,6 +19,7 @@ struct Material
         : diffuseColor(other.diffuseColor),
           specularColor(other.specularColor),
           emissiveColor(other.emissiveColor),
+          normalMapEnabled(other.normalMapEnabled),
           shininess(other.shininess),
           diffuseTexture(other.diffuseTexture),
           normalTexture(other.normalTexture),
@@ -30,6 +31,7 @@ struct Material
         : diffuseColor(std::move(other.diffuseColor)),
           specularColor(std::move(other.specularColor)),
           emissiveColor(std::move(other.emissiveColor)),
+          normalMapEnabled(other.normalMapEnabled),
           shininess(std::move(other.shininess)),
           diffuseTexture(std::move(other.diffuseTexture)),
           normalTexture(std::move(other.normalTexture)),
@@ -49,6 +51,7 @@ struct Material
         diffuseTexture = other.diffuseTexture;
         normalTexture = other.normalTexture;
         specularTexture = other.specularTexture;
+        normalMapEnabled = other.normalMapEnabled;
         return *this;
     }
 
@@ -64,12 +67,14 @@ struct Material
         diffuseTexture = std::move(other.diffuseTexture);
         normalTexture = std::move(other.normalTexture);
         specularTexture = std::move(other.specularTexture);
+        normalMapEnabled = std::move(other.normalMapEnabled);
         return *this;
     }
 
     Vector4D diffuseColor = DirectX::Colors::White;
     Vector4D specularColor = DirectX::Colors::White;
     Vector4D emissiveColor = DirectX::Colors::Transparent;
+    BOOL normalMapEnabled = FALSE;
     float shininess = 1.0f;
 
     Texture diffuseTexture;
