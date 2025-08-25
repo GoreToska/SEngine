@@ -52,11 +52,15 @@ float4 main(PS_IN input) : SV_Target
     float3 lightDir = 0;
     float3 spec = 0;
     float shininess = 1.0f;
+    float shineDistance = 100.0f;
 
     float depth = depthTex.Load(int3(input.pos.xy, 0)).x;
     float3 diffuse = diffuseTex.Load(int3(input.pos.xy, 0)).xyz;
     float4 specular = specularTex.Load(int3(input.pos.xy, 0));
     float3 normal = normalTex.Load(int3(input.pos.xy, 0)).xyz;
+	//normal.z = normal.z;
+	//normal = normalize(normal * 2.0 - 1.0); //
+
     float nonlinearDepth = nonLinearDepthTex.Load(int3(input.pos.xy, 0)).x;
 
     float ndcX = input.pos.x / client_width * 2.0f - 1.0f;
@@ -73,6 +77,24 @@ float4 main(PS_IN input) : SV_Target
     	lightDir = -normalize(lightDirection);
     	//shadow = CalculateShadow(depth, globalVertPos);
 	}
+	else if (sourceType == POINT_LIGHT || sourceType == SPOT_LIGHT)
+	{
+    	lightDir = normalize(lightPosition.xyz - globalVertPos);
+		//TODO: read shininess from specular map
+    	shininess = saturate(1 - length(lightPosition.xyz - globalVertPos) / shineDistance);
+	}
+
+	float ndotL = dot(normal, lightDir);
+	if(ndotL <= 0.0f)
+	{
+		return float4(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+    //float3 shineRadius = normalize(2 * dot(normal, lightDir) * normal - lightDir);
+    float3 shineRadius = normalize(2 * dot(normal, lightDir) * normal - lightDir);
+
+ 	//if (sourceType == POINT_LIGHT || sourceType == SPOT_LIGHT)
+    // 	spec = shininess * lightColor * saturate(specular.xyz * intensity * pow(dot(cameraViewAngle, shineRadius), 200));
 
     float3 ambient = float3(1,1,1) * 1.05f;
     float3 diffuseColor = shininess * lightColor * diffuse * intensity * saturate(dot(lightDir, normal)) * ambient;

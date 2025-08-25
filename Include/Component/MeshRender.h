@@ -41,7 +41,7 @@ class MeshRender : public IRenderComponent
     typedef IRenderComponent Super;
 
 public:
-    MeshRender(const std::shared_ptr<GameObject>& gameObject, const std::filesystem::path& path,
+    MeshRender(const std::weak_ptr<Transform>& transform, const std::filesystem::path& path,
                const std::string& vs = "Default_Deferred_VS",
                const std::string& ps = "Default_Deferred_PS",
                const std::string& gs = "",

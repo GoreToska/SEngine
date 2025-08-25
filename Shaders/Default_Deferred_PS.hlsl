@@ -40,7 +40,7 @@ float3 MapNormal(
 {
     const float3x3 tanToTarget = float3x3(tan, bitan, normal);
     float3 normalSample = nmap.Sample(splr, tc).xyz;
-	normalSample.y = -normalSample.y;
+	//normalSample.y = -normalSample.y;
     const float3 tanNormal = normalSample * 2.0f - 1.0f;
     return normalize(mul(tanNormal, tanToTarget));
 }

@@ -88,13 +88,28 @@ Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh&
         vertex.normal.y = mesh.mNormals[i].y;
         vertex.normal.z = mesh.mNormals[i].z;
 
-        vertex.tangent.x = mesh.mTangents[i].x;
-        vertex.tangent.y = mesh.mTangents[i].y;
-        vertex.tangent.z = mesh.mTangents[i].z;
+        if (mesh.mTangents)
+        {
+            vertex.tangent.x = mesh.mTangents[i].x;
+            vertex.tangent.y = mesh.mTangents[i].y;
+            vertex.tangent.z = mesh.mTangents[i].z;
+        }
+        else
+        {
+            vertex.tangent = Vector3D(0.0f, 0.0f, 0.0f);
+        }
 
-        vertex.bitangent.x = mesh.mBitangents[i].x;
-        vertex.bitangent.y = mesh.mBitangents[i].y;
-        vertex.bitangent.z = mesh.mBitangents[i].z;
+        if (mesh.mBitangents)
+        {
+            vertex.bitangent.x = mesh.mBitangents[i].x;
+            vertex.bitangent.y = mesh.mBitangents[i].y;
+            vertex.bitangent.z = mesh.mBitangents[i].z;
+        }
+        else
+        {
+            vertex.bitangent = Vector3D(0.0f, 0.0f, 0.0f);
+        }
+
 
         if (mesh.mTextureCoords[0])
         {
@@ -137,8 +152,14 @@ Texture ModelImporter::GetColorTexture(const aiMaterial& material, aiTextureType
     {
         case aiTextureType_DIFFUSE:
         {
-            material.Get(AI_MATKEY_COLOR_DIFFUSE, out_color);
-            texture.InitializeTextureWithColor(out_color);
+            if (material.Get(AI_MATKEY_COLOR_DIFFUSE, out_color) == AI_SUCCESS)
+            {
+                texture.InitializeTextureWithColor(out_color);
+            }
+            else
+            {
+                texture.InitializeTextureWithColor(ERROR_COLOR);
+            }
             return texture;
         }
 

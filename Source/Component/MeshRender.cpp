@@ -149,11 +149,11 @@ void Mesh::Render()
     }
 }
 
-MeshRender::MeshRender(const std::shared_ptr<GameObject>& gameObject,
+MeshRender::MeshRender(const std::weak_ptr<Transform>& transform,
                        const std::filesystem::path& path,
                        const std::string& vs,
                        const std::string& ps, const std::string& gs, D3D_PRIMITIVE_TOPOLOGY topology)
-    : Super(gameObject, vs, ps, gs, topology)
+    : Super(transform, vs, ps, gs, topology)
 {
     ModelImporter::LoadModel(path, meshes);
 }

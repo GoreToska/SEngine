@@ -104,6 +104,10 @@ add_library(${PROJECT_NAME}_lib STATIC
         Include/Component/DirectionalLightComponent.h
         Source/GameObjects/DirectionalLight.cpp
         Include/GameObjects/DirectionalLight.h
+        Source/Component/PointLightComponent.cpp
+        Include/Component/PointLightComponent.h
+        Source/GameObjects/PointLight.cpp
+        Include/GameObjects/PointLight.h
 )
 
 add_executable(${PROJECT_NAME}
@@ -172,6 +176,10 @@ add_executable(${PROJECT_NAME}
         Include/Component/DirectionalLightComponent.h
         Source/GameObjects/DirectionalLight.cpp
         Include/GameObjects/DirectionalLight.h
+        Source/Component/PointLightComponent.cpp
+        Include/Component/PointLightComponent.h
+        Source/GameObjects/PointLight.cpp
+        Include/GameObjects/PointLight.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE DirectXTK d3dcompiler dxguid dxgi d3d11 assimp)

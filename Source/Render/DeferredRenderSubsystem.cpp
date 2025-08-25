@@ -5,6 +5,7 @@
 #include "Render/DeferredRenderSubsystem.h"
 
 #include "Component/DirectionalLightComponent.h"
+#include "Component/PointLightComponent.h"
 #include "Engine/Engine.h"
 #include "Render/ModelBuffer.h"
 #include "Render/ShaderManager.h"
@@ -82,7 +83,12 @@ void DeferredRenderSubsystem::SetLightBuffer(std::shared_ptr<LightComponent>& li
 
     if (lightComponent->GetLightType() == LightComponent::Point)
     {
-        SERROR("Point light is not implemented.");
+        const auto light = std::static_pointer_cast<PointLightComponent>(lightComponent);
+        lightBuffer.GetData()->lightColor = light->GetColor();
+        lightBuffer.GetData()->lightPosition = light->GetPosition();
+        lightBuffer.GetData()->sourceType = light->GetLightType();
+        lightBuffer.GetData()->intensity = light->GetIntensity();
+        lightBuffer.ApplyChanges();
         return;
     }
 

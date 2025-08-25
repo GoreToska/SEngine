@@ -9,14 +9,13 @@
 #include "Utilities/Asserter.h"
 
 
-IRenderComponent::IRenderComponent(const std::shared_ptr<GameObject>& gameObject, const std::string& vs,
+IRenderComponent::IRenderComponent(const std::weak_ptr<Transform>& transform, const std::string& vs,
                                    const std::string& ps,
-                                   const std::string& gs, D3D_PRIMITIVE_TOPOLOGY topology) : gameObject(gameObject),
+                                   const std::string& gs, D3D_PRIMITIVE_TOPOLOGY topology) : transform(transform),
     v_shader(vs),
     p_shader(ps), g_shader(gs),
     topology(topology)
 {
-    transform = gameObject->GetComponent<Transform>();
 }
 
 IRenderComponent::~IRenderComponent()
@@ -49,9 +48,4 @@ void IRenderComponent::Render()
 const std::weak_ptr<Transform>& IRenderComponent::GetTransform() const
 {
     return transform;
-}
-
-const std::weak_ptr<GameObject>& IRenderComponent::GetGameObject() const
-{
-    return gameObject;
 }

@@ -38,6 +38,7 @@ PS_IN main(VS_IN input)
     output.viewPos = mul(output.viewPos, view);
 
     output.tex = input.tex;
+	input.norm.z = - input.norm.z;
     output.norm = normalize(mul(float4(input.norm.xyz, 0), world));
 
     output.tangent = mul(input.tangent, (float3x3) mul(world, view));

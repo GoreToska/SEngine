@@ -19,7 +19,7 @@ class IRenderComponent : public IComponent
     typedef IComponent Super;
 
 public:
-    IRenderComponent(const std::shared_ptr<GameObject>& gameObject, const std::string& vs = "Default_Deferred_VS",
+    IRenderComponent(const std::weak_ptr<Transform>& transform, const std::string& vs = "Default_Deferred_VS",
             const std::string& ps = "Default_Deferred_PS",
             const std::string& gs = "", D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
     );
@@ -34,11 +34,8 @@ public:
 
     const std::weak_ptr<Transform>& GetTransform() const;
 
-    const std::weak_ptr<GameObject>& GetGameObject() const;
-
 protected:
     std::weak_ptr<Transform> transform;
-    std::weak_ptr<GameObject> gameObject;
 
     std::string v_shader;
     std::string p_shader;
