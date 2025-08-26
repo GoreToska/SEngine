@@ -38,11 +38,17 @@ float3 MapNormal(
     uniform Texture2D nmap,
     uniform SamplerState splr)
 {
-    const float3x3 tanToTarget = float3x3(tan, bitan, normal);
+    /*const float3x3 tanToTarget = float3x3(tan, bitan, normal);
     float3 normalSample = nmap.Sample(splr, tc).xyz;
-	//normalSample.y = -normalSample.y;
-    const float3 tanNormal = normalSample * 2.0f - 1.0f;
-    return normalize(mul(tanNormal, tanToTarget));
+	normalSample.x = normalSample.x * 2.0f - 1.0f;
+	normalSample.y = -normalSample.y * 2.0f + 1.0f;
+	normalSample.z = normalSample.z * 2.0f - 1.0f;
+    return normalize(mul(normalSample, tanToTarget));*/
+
+	const float3x3 TBN = float3x3(normalize(tan), normalize(bitan), normalize(normal));
+    float3 normalSample = nmap.Sample(splr, tc).xyz;
+	normalSample = normalSample * 2.0 - 1.0;
+    return normalize(mul(normalSample, TBN));
 }
 
 [earlydepthstencil]
@@ -65,6 +71,7 @@ GBuffer main(PS_IN input)
         // TODO: make normal map weight
         //buf.normal.xyz = lerp(input.norm, mappedNormal, weight);
         buf.normal.xyz = mappedNormal;
+		buf.normal.w = 0;
     }
     else
     {

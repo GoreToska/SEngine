@@ -6,9 +6,7 @@ struct VS_IN
 struct PS_IN
 {
     float4 pos : SV_POSITION;
-    float4 viewPos : POSITION0;
     float4 tex : TEXCOORD0;
-    float4 globalPos : POSITION1;
 };
 
 cbuffer perObjectBuffer : register(b0)

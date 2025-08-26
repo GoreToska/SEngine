@@ -17,6 +17,8 @@ public:
                const Quaternion rotation = Quaternion::Identity,
                const Vector3D scale = Vector3D::One);
 
+    std::weak_ptr<PointLightComponent> GetLight();
+
 protected:
     std::shared_ptr<PointLightComponent> lightComponent;
     std::shared_ptr<MeshRender> debugMesh;

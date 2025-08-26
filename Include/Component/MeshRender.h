@@ -33,7 +33,7 @@ private:
     IndexBuffer indexBuffer;
 
     Material material;
-    ConstBuffer<PS_MaterialBuffer> objectMaterialBuffer;
+    ConstBuffer<MaterialBuffer> objectMaterialBuffer;
 };
 
 class MeshRender : public IRenderComponent

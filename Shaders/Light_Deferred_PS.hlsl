@@ -21,6 +21,9 @@ cbuffer lightBuffer : register(b1)
     float3 lightPosition;
     int sourceType;
     float lightWidth;
+    float constAttenuation;
+    float linearAttenuation;
+    float exponentAttenuation;
 }
 
 Texture2D<float4> depthTex : register(t2);
@@ -32,9 +35,7 @@ Texture2D<float4> nonLinearDepthTex : register(t6);
 struct PS_IN
 {
     float4 pos : SV_POSITION;
-    float4 viewPos : POSITION0;
     float4 tex : TEXCOORD0;
-    float4 globalPos : POSITION1;
 };
 
 Texture2DArray shadowMap : SHADOWMAP : register(t1);
@@ -44,8 +45,8 @@ float4 main(PS_IN input) : SV_Target
 {
         // TODO: get this values from const buffer
     // ---------------------------------
-    const float client_width = 1024.0f;
-    const float client_height = 768.0f;
+    const float client_width = 1120.0f;
+    const float client_height = 630.0f;
     // ---------------------------------
     
 
@@ -58,8 +59,6 @@ float4 main(PS_IN input) : SV_Target
     float3 diffuse = diffuseTex.Load(int3(input.pos.xy, 0)).xyz;
     float4 specular = specularTex.Load(int3(input.pos.xy, 0));
     float3 normal = normalTex.Load(int3(input.pos.xy, 0)).xyz;
-	//normal.z = normal.z;
-	//normal = normalize(normal * 2.0 - 1.0); //
 
     float nonlinearDepth = nonLinearDepthTex.Load(int3(input.pos.xy, 0)).x;
 
@@ -81,23 +80,25 @@ float4 main(PS_IN input) : SV_Target
 	{
     	lightDir = normalize(lightPosition.xyz - globalVertPos);
 		//TODO: read shininess from specular map
-    	shininess = saturate(1 - length(lightPosition.xyz - globalVertPos) / shineDistance);
+    	//shininess = saturate(1 - length(lightPosition.xyz - globalVertPos) / shineDistance);
 	}
 
-	float ndotL = dot(normal, lightDir);
-	if(ndotL <= 0.0f)
-	{
-		return float4(0.0f, 0.0f, 0.0f, 1.0f);
-	}
 
-    //float3 shineRadius = normalize(2 * dot(normal, lightDir) * normal - lightDir);
     float3 shineRadius = normalize(2 * dot(normal, lightDir) * normal - lightDir);
 
  	//if (sourceType == POINT_LIGHT || sourceType == SPOT_LIGHT)
     // 	spec = shininess * lightColor * saturate(specular.xyz * intensity * pow(dot(cameraViewAngle, shineRadius), 200));
 
-    float3 ambient = float3(1,1,1) * 1.05f;
-    float3 diffuseColor = shininess * lightColor * diffuse * intensity * saturate(dot(lightDir, normal)) * ambient;
+    float3 ambient = float3(1,1,1) * 0.05f;
+    float3 diffuseColor = lightColor * saturate(diffuse +  ambient) * intensity;
 
-    return float4(spec + diffuseColor, 1.0);
+	if(sourceType == POINT_LIGHT)
+	{
+    	float distToLight = length(lightPosition - globalVertPos);
+    	float attenuation = constAttenuation + linearAttenuation * distToLight + exponentAttenuation * distToLight * distToLight;
+    	attenuation = max(attenuation, 0.001f);
+		diffuseColor /= attenuation;
+	}
+
+    return float4(spec * shininess + diffuseColor * dot(lightDir, normal), 1.0);
 }

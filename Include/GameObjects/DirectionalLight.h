@@ -6,6 +6,7 @@
 #define DIRECTIONALLIGHT_H
 #include <memory>
 
+#include "GameObject.h"
 #include "Component/DirectionalLightComponent.h"
 
 

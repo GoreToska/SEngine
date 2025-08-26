@@ -19,8 +19,8 @@ public:
     {
         None = 0,
         Directional = 1,
-        Point = 2,
-        Spot = 3,
+        Spot = 2,
+        Point = 3,
     };
 
     LightComponent(const std::shared_ptr<Transform>& transform);

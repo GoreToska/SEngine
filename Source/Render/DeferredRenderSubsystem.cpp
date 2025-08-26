@@ -88,6 +88,9 @@ void DeferredRenderSubsystem::SetLightBuffer(std::shared_ptr<LightComponent>& li
         lightBuffer.GetData()->lightPosition = light->GetPosition();
         lightBuffer.GetData()->sourceType = light->GetLightType();
         lightBuffer.GetData()->intensity = light->GetIntensity();
+        lightBuffer.GetData()->constAttenuation = light->GetAttenuationConst();
+        lightBuffer.GetData()->linearAttenuation = light->GetAttenuationLinear();
+        lightBuffer.GetData()->exponentAttenuation = light->GetAttenuationExponent();
         lightBuffer.ApplyChanges();
         return;
     }

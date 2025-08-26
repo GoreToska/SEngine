@@ -22,7 +22,8 @@ int main()
     auto modelPath = std::filesystem::current_path().parent_path() / "Data";
     constexpr float resolution = 70;
     SEngine.Initialize(hInstance, applicationName, windowClass, 16 * resolution, 9 * resolution);
-    auto point_light = std::make_shared<PointLight>(Vector3D(0, 2, 10), Quaternion::Identity);
+    auto point_light = std::make_shared<PointLight>(Vector3D(0, 2, 10), Quaternion::Identity, Vector3D(5, 5, 5));
+    point_light->GetLight().lock()->SetIntensity(2);
     SEngine.SpawnGameObject(point_light);
 
     auto go = std::make_shared<GameObject>(Vector3D(4, 0, 0));
@@ -40,8 +41,8 @@ int main()
     SEngine.SpawnGameObject(go3);
 
 
-    //auto direct_light = std::make_shared<DirectionalLight>();
-    //SEngine.SpawnGameObject(direct_light);
+    /*auto direct_light = std::make_shared<DirectionalLight>();
+    SEngine.SpawnGameObject(direct_light);*/
 
     ModelImporter::PrintSupportedFormats();
 

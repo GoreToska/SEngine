@@ -14,7 +14,18 @@ class PointLightComponent : public LightComponent
 public:
     PointLightComponent(const std::shared_ptr<Transform>& transform);
 
+    void SetAttenuation(float constant, float linear, float exponent);
+
+    float GetAttenuationConst() const;
+
+    float GetAttenuationLinear() const;
+
+    float GetAttenuationExponent() const;
+
 protected:
+    float attenuation_const = 1.0f;
+    float attenuation_linear = 0.045f;
+    float attenuation_exponent = 0.0075f;
 };
 
 

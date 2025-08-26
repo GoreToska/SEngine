@@ -6,16 +6,17 @@
 #define CONSTANTBUFFERTYPES_H
 #include "Engine/EngineTypes.h"
 
-struct VS_ObjectBuffer
+struct PerObjectBuffer
 {
     Matrix world;
     Matrix view;
     Matrix projection;
     Matrix inverseView;
     Matrix inverseProjection;
+    BOOL ignoreLight;
 };
 
-struct PS_LightBuffer
+struct LightBuffer
 {
     Vector3D lightColor;
     float intensity;
@@ -23,9 +24,12 @@ struct PS_LightBuffer
     Vector3D lightPosition;
     int sourceType;
     float coneWidth;
+    float constAttenuation;
+    float linearAttenuation;
+    float exponentAttenuation;
 };
 
-struct PS_MaterialBuffer
+struct MaterialBuffer
 {
     Vector4D diffuseColor;
     Vector4D specularColor;
@@ -34,14 +38,14 @@ struct PS_MaterialBuffer
     float shininess;
 };
 
-struct PS_CascadeShadowsBuffer
+struct CascadeShadowsBuffer
 {
     Matrix ViewProjectionMatrix[4];
     Vector4D Distances;
     Vector4D CameraPosition;
 };
 
-struct CS_Sort
+struct SortBuffer
 {
     UINT iLevel;
     UINT iLevelMask;

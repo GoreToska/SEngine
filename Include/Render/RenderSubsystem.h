@@ -72,8 +72,8 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
     Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSamplerState;
 
-    ConstBuffer<VS_ObjectBuffer> objectMatrixBuffer;
-    ConstBuffer<PS_LightBuffer> lightBuffer;
+    ConstBuffer<PerObjectBuffer> objectMatrixBuffer;
+    ConstBuffer<LightBuffer> lightBuffer;
 
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> NoWriteNoCheckDSS;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> NoWriteGreaterDSS;
