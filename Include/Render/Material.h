@@ -16,26 +16,32 @@ struct Material
     Material() = default;
 
     Material(const Material& other)
-        : diffuseColor(other.diffuseColor),
+        : albedoColor(other.albedoColor),
           specularColor(other.specularColor),
           emissiveColor(other.emissiveColor),
           normalMapEnabled(other.normalMapEnabled),
-          shininess(other.shininess),
-          diffuseTexture(other.diffuseTexture),
+          metallic(other.metallic),
+          roughness(other.roughness),
+          albedoTexture(other.albedoTexture),
           normalTexture(other.normalTexture),
-          specularTexture(other.specularTexture)
+          metallicTexture(other.metallicTexture),
+          roughnessTexture(other.roughnessTexture),
+          aoTexture(other.aoTexture)
     {
     }
 
     Material(Material&& other) noexcept
-        : diffuseColor(std::move(other.diffuseColor)),
+        : albedoColor(std::move(other.albedoColor)),
           specularColor(std::move(other.specularColor)),
           emissiveColor(std::move(other.emissiveColor)),
           normalMapEnabled(other.normalMapEnabled),
-          shininess(std::move(other.shininess)),
-          diffuseTexture(std::move(other.diffuseTexture)),
+          metallic(std::move(other.metallic)),
+          roughness(std::move(other.roughness)),
+          albedoTexture(std::move(other.albedoTexture)),
           normalTexture(std::move(other.normalTexture)),
-          specularTexture(std::move(other.specularTexture))
+          metallicTexture(std::move(other.metallicTexture)),
+          roughnessTexture(std::move(other.roughnessTexture)),
+          aoTexture(std::move(other.aoTexture))
     {
     }
 
@@ -44,14 +50,17 @@ struct Material
         if (this == &other)
             return *this;
 
-        diffuseColor = other.diffuseColor;
+        albedoColor = other.albedoColor;
         specularColor = other.specularColor;
         emissiveColor = other.emissiveColor;
-        shininess = other.shininess;
-        diffuseTexture = other.diffuseTexture;
+        metallic = other.metallic;
+        roughness = other.roughness;
+        albedoTexture = other.albedoTexture;
         normalTexture = other.normalTexture;
-        specularTexture = other.specularTexture;
+        metallicTexture = other.metallicTexture;
         normalMapEnabled = other.normalMapEnabled;
+        roughnessTexture = other.roughnessTexture;
+        aoTexture = other.aoTexture;
         return *this;
     }
 
@@ -60,26 +69,32 @@ struct Material
         if (this == &other)
             return *this;
 
-        diffuseColor = std::move(other.diffuseColor);
+        albedoColor = std::move(other.albedoColor);
         specularColor = std::move(other.specularColor);
         emissiveColor = std::move(other.emissiveColor);
-        shininess = std::move(other.shininess);
-        diffuseTexture = std::move(other.diffuseTexture);
+        metallic = std::move(other.metallic);
+        roughness = std::move(other.roughness);
+        albedoTexture = std::move(other.albedoTexture);
         normalTexture = std::move(other.normalTexture);
-        specularTexture = std::move(other.specularTexture);
+        metallicTexture = std::move(other.metallicTexture);
         normalMapEnabled = std::move(other.normalMapEnabled);
+        roughnessTexture = std::move(other.roughnessTexture);
+        aoTexture = std::move(other.aoTexture);
         return *this;
     }
 
-    Vector4D diffuseColor = DirectX::Colors::White;
+    Vector4D albedoColor = DirectX::Colors::White;
     Vector4D specularColor = DirectX::Colors::White;
     Vector4D emissiveColor = DirectX::Colors::Transparent;
     BOOL normalMapEnabled = FALSE;
-    float shininess = 1.0f;
+    float metallic = 0.0f;
+    float roughness = 0.0f;
 
-    Texture diffuseTexture;
+    Texture albedoTexture;
     Texture normalTexture;
-    Texture specularTexture;
+    Texture metallicTexture;
+    Texture roughnessTexture;
+    Texture aoTexture;
 };
 
 #endif //MATERIAL_H

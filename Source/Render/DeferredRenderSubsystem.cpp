@@ -46,7 +46,15 @@ void DeferredRenderSubsystem::DrawLight(std::vector<std::weak_ptr<LightComponent
     SDeviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
     SDeviceContext->PSSetSamplers(1, 1, shadowSamplerState.GetAddressOf());
     SDeviceContext->PSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
-    gBuffer->PSBindResourceViews(2);
+    SDeviceContext->PSSetConstantBuffers(2, 1, shadowBuffer.GetAddressOf());
+
+    if (const auto camera = SEngine.GetGraphics().GetCurrentCamera().lock())
+    {
+        shadowBuffer.GetData()->CameraPosition = camera->GetPosition();
+        shadowBuffer.ApplyChanges();
+    }
+
+    gBuffer->PSBindResourceViews(0);
 
     for (auto it = lightComponents.begin(); it != lightComponents.end();)
     {

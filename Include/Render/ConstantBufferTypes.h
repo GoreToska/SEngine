@@ -35,7 +35,7 @@ struct MaterialBuffer
     Vector4D specularColor;
     Vector4D emissiveColor;
     BOOL normalMapEnabled;
-    float shininess;
+    float metallic;
 };
 
 struct CascadeShadowsBuffer
@@ -43,6 +43,11 @@ struct CascadeShadowsBuffer
     Matrix ViewProjectionMatrix[4];
     Vector4D Distances;
     Vector4D CameraPosition;
+};
+
+struct ShadowBuffer
+{
+    Vector3D CameraPosition;
 };
 
 struct SortBuffer

@@ -248,7 +248,7 @@ std::shared_ptr<VertexShader> ShaderManager::CompileVertexShader(const std::stri
     SSHADERERROR(
         D3DCompileFromFile(shadersPath.c_str(),
             nullptr,
-            nullptr,
+            D3D_COMPILE_STANDARD_FILE_INCLUDE,
             "main",
             "vs_5_0",
             D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
@@ -293,7 +293,7 @@ std::shared_ptr<PixelShader> ShaderManager::CompilePixelShader(const std::string
     SSHADERERROR(
         D3DCompileFromFile(shadersPath.c_str(),
             nullptr,
-            nullptr,
+            D3D_COMPILE_STANDARD_FILE_INCLUDE,
             "main",
             "ps_5_0",
             D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,

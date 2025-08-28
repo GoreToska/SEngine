@@ -74,6 +74,7 @@ protected:
 
     ConstBuffer<PerObjectBuffer> objectMatrixBuffer;
     ConstBuffer<LightBuffer> lightBuffer;
+    ConstBuffer<ShadowBuffer> shadowBuffer;
 
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> NoWriteNoCheckDSS;
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> NoWriteGreaterDSS;

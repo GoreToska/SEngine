@@ -114,22 +114,24 @@ void Mesh::Render()
         SDeviceContext->PSSetShaderResources(i, 1, &nullResource);
     }
 
-    if (material.diffuseTexture.GetTextureSRV().Get())
-        SDeviceContext->PSSetShaderResources(0, 1, material.diffuseTexture.GetTextureSRV().GetAddressOf());
-    if (material.specularTexture.GetTextureSRV().Get())
-        SDeviceContext->PSSetShaderResources(1, 1, material.specularTexture.GetTextureSRV().GetAddressOf());
+    if (material.albedoTexture.GetTextureSRV().Get())
+        SDeviceContext->PSSetShaderResources(0, 1, material.albedoTexture.GetTextureSRV().GetAddressOf());
+    if (material.metallicTexture.GetTextureSRV().Get())
+        SDeviceContext->PSSetShaderResources(1, 1, material.metallicTexture.GetTextureSRV().GetAddressOf());
     if (material.normalTexture.GetTextureSRV().Get())
     {
         SDeviceContext->PSSetShaderResources(2, 1, material.normalTexture.GetTextureSRV().GetAddressOf());
         SDeviceContext->VSSetShaderResources(0, 1, material.normalTexture.GetTextureSRV().GetAddressOf());
     }
+    if (material.roughnessTexture.GetTextureSRV().Get())
+        SDeviceContext->PSSetShaderResources(3, 1, material.roughnessTexture.GetTextureSRV().GetAddressOf());
 
     SDeviceContext->PSSetConstantBuffers(0, 1, objectMaterialBuffer.GetAddressOf());
-    objectMaterialBuffer.GetData()->diffuseColor = material.diffuseColor;
+    objectMaterialBuffer.GetData()->diffuseColor = material.albedoColor;
     objectMaterialBuffer.GetData()->specularColor = material.specularColor;
     objectMaterialBuffer.GetData()->emissiveColor = material.emissiveColor;
     objectMaterialBuffer.GetData()->normalMapEnabled = material.normalMapEnabled;
-    objectMaterialBuffer.GetData()->shininess = material.shininess;
+    objectMaterialBuffer.GetData()->metallic = material.metallic;
     objectMaterialBuffer.ApplyChanges();
 
     UINT stride = sizeof(Vertex);

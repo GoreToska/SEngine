@@ -1,3 +1,5 @@
+#include "Common.hlsli"
+
 struct PS_IN
 {
     float4 pos : SV_POSITION;
@@ -18,8 +20,9 @@ cbuffer material : register(b0)
 }
 
 Texture2D diffuseTexture : register(t0);
-Texture2D specularTexture : register(t1);
+Texture2D metalTexture : register(t1);
 Texture2D normalTexture : register(t2);
+Texture2D roughnessTexture : register(t3);
 SamplerState samplerState : register(s0);
 
 struct GBuffer
@@ -27,29 +30,9 @@ struct GBuffer
     float4 depth : SV_Target0;
     float4 normal : SV_Target1;
     float4 diffuse : SV_Target2;
-    float4 specular : SV_Target3;
+    float4 metal : SV_Target3;
+    float4 roughness : SV_Target4;
 };
-
-float3 MapNormal(
-    const in float3 tan,
-    const in float3 bitan,
-    const in float3 normal,
-    const in float2 tc,
-    uniform Texture2D nmap,
-    uniform SamplerState splr)
-{
-    /*const float3x3 tanToTarget = float3x3(tan, bitan, normal);
-    float3 normalSample = nmap.Sample(splr, tc).xyz;
-	normalSample.x = normalSample.x * 2.0f - 1.0f;
-	normalSample.y = -normalSample.y * 2.0f + 1.0f;
-	normalSample.z = normalSample.z * 2.0f - 1.0f;
-    return normalize(mul(normalSample, tanToTarget));*/
-
-	const float3x3 TBN = float3x3(normalize(tan), normalize(bitan), normalize(normal));
-    float3 normalSample = nmap.Sample(splr, tc).xyz;
-	normalSample = normalSample * 2.0 - 1.0;
-    return normalize(mul(normalSample, TBN));
-}
 
 [earlydepthstencil]
 GBuffer main(PS_IN input)
@@ -83,7 +66,7 @@ GBuffer main(PS_IN input)
 
     buf.depth.xyz = float3(depth, depth, depth);
     buf.diffuse =  diffuseColor * textureColor;
-    buf.specular = specularColor;
-
+    buf.metal = metalTexture.Sample(samplerState, input.tex).x;
+    buf.roughness = roughnessTexture.Sample(samplerState, input.tex).y;
     return buf;
 }

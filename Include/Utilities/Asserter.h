@@ -12,7 +12,7 @@
 
 #include "StringUtilities.h"
 
-class SException
+class SException : public std::exception
 {
 public:
     SException(HRESULT hr, const std::string& msg, const std::string& file, const std::string& function, int line)

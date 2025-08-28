@@ -26,17 +26,20 @@ private:
     Microsoft::WRL::ComPtr<ID3D11Texture2D> depth;
     Microsoft::WRL::ComPtr<ID3D11Texture2D> normal;
     Microsoft::WRL::ComPtr<ID3D11Texture2D> diffuse;
-    Microsoft::WRL::ComPtr<ID3D11Texture2D> specular;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> metal;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> roughness;
 
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> depthSRV;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalSRV;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> diffuseSRV;
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> specularSRV;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> metalSRV;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> roughnessSRV;
 
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> depthRTV;
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> normalRTV;
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> diffuseRTV;
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> specularRTV;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> metalRTV;
+    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> roughnessRTV;
 };
 
 

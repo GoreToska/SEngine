@@ -16,6 +16,7 @@ void RenderSubsystem::Initialize(HWND hwnd, int width, int height)
     InitializeDirectX(hwnd);
     ThrowIfFailed(objectMatrixBuffer.Initialize(), "Failed to initialize buffer.");
     ThrowIfFailed(lightBuffer.Initialize(), "Failed to initialize light buffer.");
+    ThrowIfFailed(shadowBuffer.Initialize(), "Failed to initialize light buffer.");
 }
 
 // TODO: render shadow map should take light component, not camera component

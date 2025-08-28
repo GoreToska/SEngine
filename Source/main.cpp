@@ -20,10 +20,10 @@ int main()
     std::string windowClass = "WindowClass";
     HINSTANCE hInstance = GetModuleHandle(nullptr);
     auto modelPath = std::filesystem::current_path().parent_path() / "Data";
-    constexpr float resolution = 70;
+    constexpr float resolution = 80;
     SEngine.Initialize(hInstance, applicationName, windowClass, 16 * resolution, 9 * resolution);
     auto point_light = std::make_shared<PointLight>(Vector3D(0, 2, 10), Quaternion::Identity, Vector3D(5, 5, 5));
-    point_light->GetLight().lock()->SetIntensity(2);
+    point_light->GetLight().lock()->SetIntensity(10);
     SEngine.SpawnGameObject(point_light);
 
     auto go = std::make_shared<GameObject>(Vector3D(4, 0, 0));
@@ -41,8 +41,8 @@ int main()
     SEngine.SpawnGameObject(go3);
 
 
-    /*auto direct_light = std::make_shared<DirectionalLight>();
-    SEngine.SpawnGameObject(direct_light);*/
+    auto direct_light = std::make_shared<DirectionalLight>();
+    SEngine.SpawnGameObject(direct_light);
 
     ModelImporter::PrintSupportedFormats();
 
@@ -60,7 +60,7 @@ int main()
         if (Keyboard::Instance().IsKeyPressed('X'))
             point_light->GetTransform().lock()->SetPosition(player->GetTransform().lock()->GetPosition());
 
-        //direct_light->GetTransform().lock()->AddRotation({1, 1, 0}, 0.001);
+        direct_light->GetTransform().lock()->AddRotation({1, 1, 0}, 0.001);
         SEngine.Run();
     }
 

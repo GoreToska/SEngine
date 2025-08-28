@@ -131,16 +131,26 @@ Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh&
     }
 
     Material mesh_material;
-    material.Get(AI_MATKEY_COLOR_DIFFUSE, mesh_material.diffuseColor);
-    material.Get(AI_MATKEY_COLOR_SPECULAR, mesh_material.specularColor);
-    material.Get(AI_MATKEY_COLOR_EMISSIVE, mesh_material.emissiveColor);
-    material.Get(AI_MATKEY_SHININESS, mesh_material.shininess);
+    material.Get(AI_MATKEY_COLOR_DIFFUSE, mesh_material.albedoColor);
+    material.Get(AI_MATKEY_METALLIC_FACTOR, mesh_material.metallic);
+    material.Get(AI_MATKEY_ROUGHNESS_FACTOR, mesh_material.roughness);
 
     BOOL has_texture;
-    mesh_material.diffuseTexture = GetTexture(path, scene, material, aiTextureType_DIFFUSE, has_texture);
-    mesh_material.specularTexture = GetTexture(path, scene, material, aiTextureType_SPECULAR, has_texture);
-    mesh_material.normalTexture = GetTexture(path, scene, material, aiTextureType_NORMALS,
+    mesh_material.albedoTexture = GetTexture(path, scene, material, Texture::TextureType::Albedo, has_texture);
+    mesh_material.normalTexture = GetTexture(path, scene, material, Texture::TextureType::Normal,
                                              mesh_material.normalMapEnabled);
+    mesh_material.metallicTexture = GetTexture(path, scene, material, Texture::TextureType::Metallic, has_texture);
+    if (!has_texture)
+    {
+        mesh_material.metallicTexture.InitializeTextureWithColor({0, 0, 0, 1});
+    }
+
+    mesh_material.roughnessTexture = GetTexture(path, scene, material, Texture::TextureType::Roughness, has_texture);
+    if (!has_texture)
+    {
+        mesh_material.roughnessTexture.InitializeTextureWithColor({1, 1, 1, 1});
+    }
+
     return Mesh(vertices, indices, mesh_material);
 }
 
@@ -182,26 +192,67 @@ Texture ModelImporter::GetColorTexture(const aiMaterial& material, aiTextureType
 }
 
 Texture ModelImporter::GetTexture(const std::filesystem::path& path, const aiScene& scene, const aiMaterial& material,
-                                  aiTextureType type, BOOL& has_texture)
+                                  Texture::TextureType type, BOOL& has_texture)
 {
-    Texture texture;
-    if (material.GetTextureCount(type) == 0)
-    {
-        has_texture = FALSE;
-        return GetColorTexture(material, type);
-    }
-
     // TODO: we can have any count of textures blended together
     // We should consider to use foreach loop
     // But for now this should work fine
+
+    Texture texture;
     aiString texturePath;
-    material.GetTexture(type, 0, &texturePath);
-    TextureStorage storageType = GetTextureStorageType(scene, material, 0, type);
-    has_texture = TRUE;
+    TextureStorage storageType = TextureStorage::None;
+    aiReturn result = aiReturn_FAILURE;
+    has_texture = FALSE;
+
+    if (type == Texture::TextureType::Albedo)
+    {
+        result = material.GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
+        if (result == AI_SUCCESS)
+        {
+            storageType = GetTextureStorageType(scene, material, 0, aiTextureType_DIFFUSE);
+            has_texture = TRUE;
+        }
+    }
+    else if (type == Texture::TextureType::Normal)
+    {
+        result = material.GetTexture(aiTextureType_NORMALS, 0, &texturePath);
+        if (result == AI_SUCCESS)
+        {
+            storageType = GetTextureStorageType(scene, material, 0, aiTextureType_NORMALS);
+            has_texture = TRUE;
+        }
+    }
+    else if (type == Texture::TextureType::Metallic)
+    {
+        result = material.GetTexture(AI_MATKEY_METALLIC_TEXTURE, &texturePath);
+        if (result == AI_SUCCESS)
+        {
+            storageType = GetTextureStorageType(scene, material, 0, aiTextureType_METALNESS);
+            has_texture = TRUE;
+        }
+    }
+    else if (type == Texture::TextureType::Roughness)
+    {
+        result = material.GetTexture(AI_MATKEY_ROUGHNESS_TEXTURE, &texturePath);
+        if (result == AI_SUCCESS)
+        {
+            storageType = GetTextureStorageType(scene, material, 0, aiTextureType_DIFFUSE_ROUGHNESS);
+            has_texture = TRUE;
+        }
+    }
+    else if (type == Texture::TextureType::Occlusion)
+    {
+        result = material.GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath);
+        if (result == AI_SUCCESS)
+        {
+            storageType = GetTextureStorageType(scene, material, 0, aiTextureType_AMBIENT_OCCLUSION);
+            has_texture = TRUE;
+        }
+    }
 
     switch (storageType)
     {
-        case Disk:
+        case TextureStorage::Disk:
         {
             std::string fileName = (path.parent_path() / texturePath.C_Str()).string();
             std::cout << fileName << std::endl;
@@ -217,7 +268,7 @@ ModelImporter::TextureStorage ModelImporter::GetTextureStorageType(const aiScene
                                                                    size_t index, aiTextureType type)
 {
     if (material.GetTextureCount(type) == 0)
-        return None;
+        return TextureStorage::None;
 
     aiString path;
     material.GetTexture(type, index, &path);
@@ -227,12 +278,12 @@ ModelImporter::TextureStorage ModelImporter::GetTextureStorageType(const aiScene
     {
         if (scene.mTextures[0]->mHeight == 0)
         {
-            return EmbeddedIndexCompressed;
+            return TextureStorage::EmbeddedIndexCompressed;
         }
         else
         {
             SERROR("SUPPORT DOES NOT EXIST YET FOR INDEXED NON COMPRESSED TEXTURES!");
-            return EmbeddedIndexNonCompressed;
+            return TextureStorage::EmbeddedIndexNonCompressed;
         }
     }
 
@@ -240,19 +291,19 @@ ModelImporter::TextureStorage ModelImporter::GetTextureStorageType(const aiScene
     {
         if (texture->mHeight == 0)
         {
-            return EmbeddedCompressed;
+            return TextureStorage::EmbeddedCompressed;
         }
         else
         {
             SERROR("SUPPORT DOES NOT EXIST YET FOR EMBEDDED NON COMPRESSED TEXTURES!");
-            return EmbeddedNonCompressed;
+            return TextureStorage::EmbeddedNonCompressed;
         }
     }
 
     if (texturePath.find('.') != std::string::npos)
     {
-        return Disk;
+        return TextureStorage::Disk;
     }
 
-    return None;
+    return TextureStorage::None;
 }

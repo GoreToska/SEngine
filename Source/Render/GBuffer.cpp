@@ -108,7 +108,7 @@ GBuffer::GBuffer()
     specTexDesc.MiscFlags = 0;
     specTexDesc.SampleDesc = {1, 0};
 
-    ThrowIfFailed(SDevice->CreateTexture2D(&specTexDesc, nullptr, &specular), "Failed.");
+    ThrowIfFailed(SDevice->CreateTexture2D(&specTexDesc, nullptr, &metal), "Failed.");
 
     D3D11_SHADER_RESOURCE_VIEW_DESC specSrvDesc = {};
     specSrvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -120,8 +120,36 @@ GBuffer::GBuffer()
     specRtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
     specRtvDesc.Texture2D.MipSlice = 0;
 
-    ThrowIfFailed(SDevice->CreateShaderResourceView(specular.Get(), &specSrvDesc, &specularSRV), "Failed.");
-    ThrowIfFailed(SDevice->CreateRenderTargetView(specular.Get(), &specRtvDesc, &specularRTV), "Failed.");
+    ThrowIfFailed(SDevice->CreateShaderResourceView(metal.Get(), &specSrvDesc, &metalSRV), "Failed.");
+    ThrowIfFailed(SDevice->CreateRenderTargetView(metal.Get(), &specRtvDesc, &metalRTV), "Failed.");
+
+
+    D3D11_TEXTURE2D_DESC roughnessTexDesc = {};
+    roughnessTexDesc.Width = SEngine.GetGraphics().GetClientWidth();
+    roughnessTexDesc.Height = SEngine.GetGraphics().GetClientHeight();
+    roughnessTexDesc.MipLevels = 1;
+    roughnessTexDesc.ArraySize = 1;
+    roughnessTexDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    roughnessTexDesc.Usage = D3D11_USAGE_DEFAULT;
+    roughnessTexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+    roughnessTexDesc.CPUAccessFlags = 0;
+    roughnessTexDesc.MiscFlags = 0;
+    roughnessTexDesc.SampleDesc = {1, 0};
+
+    ThrowIfFailed(SDevice->CreateTexture2D(&roughnessTexDesc, nullptr, &roughness), "Failed.");
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC roughnessSrvDesc = {};
+    roughnessSrvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    roughnessSrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    roughnessSrvDesc.Texture2D.MipLevels = 1;
+    roughnessSrvDesc.Texture2D.MostDetailedMip = 0;
+    D3D11_RENDER_TARGET_VIEW_DESC roughnessRtvDesc = {};
+    roughnessRtvDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    roughnessRtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+    roughnessRtvDesc.Texture2D.MipSlice = 0;
+
+    ThrowIfFailed(SDevice->CreateShaderResourceView(roughness.Get(), &roughnessSrvDesc, &roughnessSRV), "Failed.");
+    ThrowIfFailed(SDevice->CreateRenderTargetView(roughness.Get(), &roughnessRtvDesc, &roughnessRTV), "Failed.");
 }
 
 void GBuffer::SetRenderTargets() const
@@ -130,10 +158,11 @@ void GBuffer::SetRenderTargets() const
         depthRTV.Get(),
         normalRTV.Get(),
         diffuseRTV.Get(),
-        specularRTV.Get()
+        metalRTV.Get(),
+        roughnessRTV.Get()
     };
 
-    SDeviceContext->OMSetRenderTargets(4, rtvs,
+    SDeviceContext->OMSetRenderTargets(ARRAYSIZE(rtvs), rtvs,
                                        SEngine.GetGraphics().GetRenderSubsystem().GetDepthStencilView().Get());
 }
 
@@ -143,7 +172,8 @@ void GBuffer::PSBindResourceViews(int startIndex) const
         depthSRV.Get(),
         normalSRV.Get(),
         diffuseSRV.Get(),
-        specularSRV.Get(),
+        metalSRV.Get(),
+        roughnessSRV.Get(),
         SEngine.GetGraphics().GetRenderSubsystem().GetDepthStencilSRV().Get(),
     };
 
@@ -152,7 +182,7 @@ void GBuffer::PSBindResourceViews(int startIndex) const
 
 void GBuffer::PSClearResourceViews(int startIndex) const
 {
-    ID3D11ShaderResourceView* rsvs[] = {nullptr, nullptr, nullptr, nullptr, nullptr};
+    ID3D11ShaderResourceView* rsvs[] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
     SDeviceContext->PSSetShaderResources(startIndex, ARRAYSIZE(rsvs), rsvs);
 }
@@ -164,5 +194,6 @@ void GBuffer::ClearRenderTargets() const
     SDeviceContext->ClearRenderTargetView(depthRTV.Get(), clearColorWhite);
     SDeviceContext->ClearRenderTargetView(normalRTV.Get(), clearColorBlack);
     SDeviceContext->ClearRenderTargetView(diffuseRTV.Get(), clearColorBlack);
-    SDeviceContext->ClearRenderTargetView(specularRTV.Get(), clearColorBlack);
+    SDeviceContext->ClearRenderTargetView(metalRTV.Get(), clearColorWhite);
+    SDeviceContext->ClearRenderTargetView(roughnessRTV.Get(), clearColorWhite);
 }

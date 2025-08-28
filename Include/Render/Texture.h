@@ -20,9 +20,19 @@
 class Texture
 {
 public:
+    enum class TextureType
+    {
+        None = 0,
+        Albedo = 1,
+        Normal = 2,
+        Metallic = 3,
+        Roughness = 4,
+        Occlusion = 5,
+    };
+
     Texture()
     {
-        this->type = aiTextureType_NONE;
+        this->type = TextureType::None;
         InitializeTextureWithColor({255, 255, 255, 255});
     }
 
@@ -30,7 +40,8 @@ public:
         : texture(other.texture),
           textureSRV(other.textureSRV),
           type(other.type),
-          color(other.color)
+          color(other.color),
+          path(other.path)
     {
     }
 
@@ -38,7 +49,8 @@ public:
         : texture(std::move(other.texture)),
           textureSRV(std::move(other.textureSRV)),
           type(std::move(other.type)),
-          color(std::move(other.color))
+          color(std::move(other.color)),
+          path(std::move(other.path))
     {
         other.textureSRV = nullptr;
         other.texture = nullptr;
@@ -53,6 +65,7 @@ public:
         textureSRV = other.textureSRV;
         type = other.type;
         color = other.color;
+        path = other.path;
         return *this;
     }
 
@@ -65,19 +78,21 @@ public:
         textureSRV = std::move(other.textureSRV);
         type = std::move(other.type);
         color = std::move(other.color);
+        path = std::move(other.path);
         other.textureSRV = nullptr;
         other.texture = nullptr;
         return *this;
     }
 
-    Texture(const Color& color, const aiTextureType type)
+    Texture(const Color& color, const TextureType type)
     {
         this->type = type;
         InitializeTextureWithColor(color);
     }
 
-    Texture(const std::filesystem::path& filePath, const aiTextureType type)
+    Texture(const std::filesystem::path& filePath, const TextureType type)
     {
+        path = filePath;
         this->type = type;
         HRESULT hr;
         if (filePath.extension() == ".dds")
@@ -88,19 +103,26 @@ public:
                 0,
                 D3D11_USAGE_DEFAULT,
                 D3D11_BIND_SHADER_RESOURCE,
-                0,
+                D3D11_CPU_ACCESS_READ,
                 0,
                 DirectX::DDS_LOADER_FORCE_SRGB,
-                nullptr,
+                reinterpret_cast<ID3D11Resource**>(texture.GetAddressOf()),
                 textureSRV.GetAddressOf()
             );
         }
         else
         {
-            hr = DirectX::CreateWICTextureFromFileEx(SDevice, ToWideString(filePath.string()).c_str(), 0,
-                                                     D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0,
-                                                     DirectX::WIC_LOADER_FORCE_SRGB,
-                                                     nullptr, textureSRV.GetAddressOf());
+            hr = DirectX::CreateWICTextureFromFileEx(
+                SDevice,
+                ToWideString(filePath.string()).c_str(),
+                0,
+                D3D11_USAGE_DEFAULT,
+                D3D11_BIND_SHADER_RESOURCE,
+                D3D11_CPU_ACCESS_READ,
+                0,
+                DirectX::WIC_LOADER_FORCE_SRGB,
+                reinterpret_cast<ID3D11Resource**>(texture.GetAddressOf()),
+                textureSRV.GetAddressOf());
         }
 
         if (FAILED(hr))
@@ -123,6 +145,7 @@ public:
         textureDesc.SampleDesc.Count = 1;
         textureDesc.Usage = D3D11_USAGE_DEFAULT;
         textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        textureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 
         D3D11_SUBRESOURCE_DATA initialData{};
         initialData.pSysMem = color;
@@ -143,7 +166,7 @@ public:
         );
     }
 
-    aiTextureType GetType() const
+    TextureType GetType() const
     {
         return type;
     }
@@ -153,11 +176,17 @@ public:
         return textureSRV;
     }
 
+    std::filesystem::path GetFilePath() const
+    {
+        return path;
+    }
+
 private:
     Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRV;
-    aiTextureType type;
+    TextureType type;
     Color color;
+    std::filesystem::path path = "";
 };
 
 #endif //TEXTURE_H
