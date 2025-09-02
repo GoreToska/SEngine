@@ -48,7 +48,7 @@ void Graphics::RenderFrame()
 {
     render_subsystem->RenderShadowMap(renderObjects, currentCamera);
 
-    render_subsystem->Render(renderObjects, currentCamera, lightObjects);
+    render_subsystem->Render(renderObjects, currentCamera, lightObjects, skybox);
 }
 
 void Graphics::RenderParticles()
@@ -88,10 +88,18 @@ void Graphics::AddCamera(const std::weak_ptr<CameraComponent>& camera)
         currentCamera = camera;
 }
 
+void Graphics::AddSkyBox(std::weak_ptr<SkyBoxComponent> skybox)
+{
+    this->skybox = skybox;
+}
+
 void Graphics::SetCurrentCamera(const std::weak_ptr<CameraComponent>& camera)
 {
     if (cameraComponents.empty())
+    {
+        SLOG("No camera!");
         return;
+    }
 
     for (const auto& component: cameraComponents)
     {

@@ -12,6 +12,7 @@
 #include "Component/CameraComponent.h"
 #include "Component/IRenderComponent.h"
 #include "Component/LightComponent.h"
+#include "Component/SkyBoxComponent.h"
 #include "Utilities/SMath.h"
 
 class Graphics
@@ -38,6 +39,8 @@ public:
     void AddLightToLightPool(std::shared_ptr<LightComponent> object);
 
     void AddCamera(const std::weak_ptr<CameraComponent>& camera);
+
+    void AddSkyBox(std::weak_ptr<SkyBoxComponent> skybox);
 
     void SetCurrentCamera(const std::weak_ptr<CameraComponent>& camera);
 
@@ -74,6 +77,7 @@ private:
 
     std::set<std::weak_ptr<CameraComponent>, smath::WeakPtrComparator> cameraComponents;
     std::weak_ptr<CameraComponent> currentCamera;
+    std::weak_ptr<SkyBoxComponent> skybox;
 };
 
 

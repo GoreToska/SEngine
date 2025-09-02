@@ -15,6 +15,7 @@
 #include "SimpleMath.h"
 #include "Component/IRenderComponent.h"
 #include "Component/LightComponent.h"
+#include "Component/SkyBoxComponent.h"
 
 class CameraComponent;
 
@@ -25,7 +26,10 @@ public:
 
     virtual void Render(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
                         std::weak_ptr<CameraComponent> cameraComponent,
-                        std::vector<std::weak_ptr<LightComponent>>& lightComponents) = 0;
+                        std::vector<std::weak_ptr<LightComponent>>& lightComponents,
+                        std::weak_ptr<SkyBoxComponent> skybox) = 0;
+
+    virtual void RenderSkyBox(std::weak_ptr<SkyBoxComponent> skybox, std::weak_ptr<CameraComponent> cameraComponent);
 
     void RenderShadowMap(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
                          std::weak_ptr<CameraComponent> cameraComponent);
@@ -81,8 +85,8 @@ protected:
     Microsoft::WRL::ComPtr<ID3D11DepthStencilState> NoWriteLessDSS;
 
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastStateCullFront;
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastStateCullNone;
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> rastStateCullBack;
-    Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
 
     Microsoft::WRL::ComPtr<ID3D11BlendState> additiveBlendState;
 };

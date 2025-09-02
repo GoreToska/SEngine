@@ -12,6 +12,7 @@
 #include "GameObjects/FirstPersonPlayer.h"
 #include "GameObjects/PointLight.h"
 #include "GameObjects/SCamera.h"
+#include "GameObjects/Skybox.h"
 #include "Input/Keyboard.h"
 
 int main()
@@ -19,7 +20,7 @@ int main()
     std::string applicationName = "SEngine";
     std::string windowClass = "WindowClass";
     HINSTANCE hInstance = GetModuleHandle(nullptr);
-    auto modelPath = std::filesystem::current_path().parent_path() / "Data";
+    auto dataPath = std::filesystem::current_path().parent_path() / "Data";
     constexpr float resolution = 80;
     SEngine.Initialize(hInstance, applicationName, windowClass, 16 * resolution, 9 * resolution);
     auto point_light = std::make_shared<PointLight>(Vector3D(0, 2, 10), Quaternion::Identity, Vector3D(5, 5, 5));
@@ -29,15 +30,15 @@ int main()
     auto go = std::make_shared<GameObject>(Vector3D(4, 0, 0));
     //go->AddComponent<MeshRender>(go, modelPath / "NanoSuit" / "nanosuit.obj");
     //go->AddComponent<MeshRender>(go, modelPath / "Orange" / "orange_disktexture.fbx");
-    go->AddComponent<MeshRender>(go->GetTransform(), (modelPath / "Card" / "MemoryCard.obj").string());
+    go->AddComponent<MeshRender>(go->GetTransform(), (dataPath / "Card" / "MemoryCard.obj").string());
     SEngine.SpawnGameObject(go);
 
     auto go2 = std::make_shared<GameObject>(Vector3D(4, 0, 4), Quaternion::Identity, Vector3D(5, 5, 5));
-    go2->AddComponent<MeshRender>(go2->GetTransform(), modelPath / "Mark2" / "Mark2.gltf");
+    go2->AddComponent<MeshRender>(go2->GetTransform(), dataPath / "Mark2" / "Mark2.gltf");
     SEngine.SpawnGameObject(go2);
 
     auto go3 = std::make_shared<GameObject>(Vector3D(-10, 0, 10), Quaternion::Identity, Vector3D(5, 5, 5));
-    go3->AddComponent<MeshRender>(go3->GetTransform(), modelPath / "BrickWall" / "brick_wall.obj");
+    go3->AddComponent<MeshRender>(go3->GetTransform(), dataPath / "BrickWall" / "brick_wall.obj");
     SEngine.SpawnGameObject(go3);
 
 
@@ -54,6 +55,10 @@ int main()
     SEngine.SpawnGameObject(player);
 
     //ModelImporter::PrintSupportedFormats();
+
+    std::vector<std::wstring> names = {L"right.png", L"left.png", L"up.png", L"down.png", L"front.png", L"back.png"};
+    auto skybox = std::make_shared<Skybox>(dataPath / "Skybox", names);
+    SEngine.SpawnGameObject(skybox);
 
     while (SEngine.IsRunning())
     {

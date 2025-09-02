@@ -126,5 +126,8 @@ void Engine::SpawnGameObject(std::shared_ptr<GameObject> object)
     if (const auto comp = object->GetComponent<CameraComponent>())
         graphics->AddCamera(comp);
 
+    if (const auto comp = object->GetComponent<SkyBoxComponent>())
+        graphics->AddSkyBox(comp);
+
     gameObjects.emplace_back(object);
 }

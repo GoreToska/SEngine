@@ -19,6 +19,23 @@ void RenderSubsystem::Initialize(HWND hwnd, int width, int height)
     ThrowIfFailed(shadowBuffer.Initialize(), "Failed to initialize light buffer.");
 }
 
+void RenderSubsystem::RenderSkyBox(std::weak_ptr<SkyBoxComponent> skybox,
+                                   std::weak_ptr<CameraComponent> cameraComponent)
+{
+    if (auto camera = cameraComponent.lock())
+    {
+        objectMatrixBuffer.GetData()->view = camera->GetViewMatrix().Transpose();
+        objectMatrixBuffer.GetData()->projection = camera->GetProjectionMatrix().Transpose();
+        objectMatrixBuffer.ApplyChanges();
+
+        if (auto comp = skybox.lock())
+        {
+            comp->SetShaders();
+            comp->Render();
+        }
+    }
+}
+
 // TODO: render shadow map should take light component, not camera component
 void RenderSubsystem::RenderShadowMap(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
                                       std::weak_ptr<CameraComponent> cameraComponent)
@@ -163,16 +180,16 @@ void RenderSubsystem::CreateRasterizerAndBlendState()
     ThrowIfFailed(
         SDevice->CreateRasterizerState(
             &rasterizerDesc,
-            rasterizerState.GetAddressOf()),
+            rastStateCullBack.GetAddressOf()),
         "Failed to create rasterizer state.");
 
     rasterizerDesc = {};
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-    rasterizerDesc.CullMode = D3D11_CULL_BACK;
+    rasterizerDesc.CullMode = D3D11_CULL_NONE;
     ThrowIfFailed(
         SDevice->CreateRasterizerState(
             &rasterizerDesc,
-            rastStateCullBack.GetAddressOf()),
+            rastStateCullNone.GetAddressOf()),
         "Failed to create rasterizer state.");
 
     rasterizerDesc = {};
@@ -262,7 +279,7 @@ void RenderSubsystem::CreateDepthStencilState()
     depthStencilDesc = {};
     depthStencilDesc.DepthEnable = true;
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
     depthStencilDesc.StencilEnable = false;
     ThrowIfFailed(
         SDevice->CreateDepthStencilState(

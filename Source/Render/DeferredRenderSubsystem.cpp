@@ -18,22 +18,27 @@ void DeferredRenderSubsystem::Initialize(HWND hwnd, int width, int height)
 
 void DeferredRenderSubsystem::Render(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
                                      const std::weak_ptr<CameraComponent> cameraComponent,
-                                     std::vector<std::weak_ptr<LightComponent>>& lightComponents)
+                                     std::vector<std::weak_ptr<LightComponent>>& lightComponents,
+                                     std::weak_ptr<SkyBoxComponent> skybox)
 {
     gBuffer->ClearRenderTargets();
     SDeviceContext->RSSetViewports(1, &viewport);
     SDeviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
-    SDeviceContext->RSSetState(rasterizerState.Get());
+    SDeviceContext->RSSetState(rastStateCullBack.Get());
     SDeviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
     ClearDepthAndTargetViews();
     gBuffer->SetRenderTargets();
 
     RenderObjects(objectsToRender, cameraComponent);
 
-    // todo: render light
     DrawLight(lightComponents);
 
     // todo: render particles
+
+    SDeviceContext->RSSetState(rastStateCullBack.Get());
+    SDeviceContext->OMSetDepthStencilState(NoWriteLessDSS.Get(), 0);
+    SDeviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
+    RenderSkyBox(skybox, cameraComponent);
 
     swapchain->Present(1, NULL);
 }
@@ -41,7 +46,7 @@ void DeferredRenderSubsystem::Render(std::vector<std::weak_ptr<IRenderComponent>
 void DeferredRenderSubsystem::DrawLight(std::vector<std::weak_ptr<LightComponent>>& lightComponents)
 {
     SDeviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), nullptr);
-    SDeviceContext->RSSetState(rasterizerState.Get());
+    SDeviceContext->RSSetState(rastStateCullBack.Get());
     SDeviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
     SDeviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
     SDeviceContext->PSSetSamplers(1, 1, shadowSamplerState.GetAddressOf());

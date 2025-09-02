@@ -108,6 +108,11 @@ add_library(${PROJECT_NAME}_lib STATIC
         Include/Component/PointLightComponent.h
         Source/GameObjects/PointLight.cpp
         Include/GameObjects/PointLight.h
+        Source/Component/SkyBoxComponent.cpp
+        Include/Component/SkyBoxComponent.h
+        Source/GameObjects/Skybox.cpp
+        Include/GameObjects/Skybox.h
+        Include/Utilities/PrimitiveVolumes.h
 )
 
 add_executable(${PROJECT_NAME}
@@ -180,6 +185,11 @@ add_executable(${PROJECT_NAME}
         Include/Component/PointLightComponent.h
         Source/GameObjects/PointLight.cpp
         Include/GameObjects/PointLight.h
+        Source/Component/SkyBoxComponent.cpp
+        Include/Component/SkyBoxComponent.h
+        Source/GameObjects/Skybox.cpp
+        Include/GameObjects/Skybox.h
+        Include/Utilities/PrimitiveVolumes.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE DirectXTK d3dcompiler dxguid dxgi d3d11 assimp)

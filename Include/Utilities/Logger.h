@@ -30,6 +30,9 @@ namespace slog
     {
         std::string filename = std::filesystem::path(file).filename().string();
         std::string error_message = "Error: " + message + "\nFile: " + filename + "\nLine: " + std::to_string(line);
+        std::cout << "\033[31m";
+        std::cout << error_message << std::endl;
+        std::cout << "\033[0m";
         MessageBoxA(NULL, error_message.c_str(), "Error", MB_ICONERROR);
     };
 
@@ -42,6 +45,9 @@ namespace slog
         wss << L"Error: " <<
                 std::wstring(message.begin(), message.end()) <<
                 L"\n" << error.ErrorMessage() << "\nFile: " << filename << "\nLine: " << line;
+        std::cout << "\033[31m";
+        std::cout << std::string(wss.str().begin(), wss.str().end()) << std::endl;
+        std::cout << "\033[0m";
         MessageBoxW(NULL, wss.str().c_str(), L"Error", MB_ICONERROR);
     };
 
@@ -54,6 +60,9 @@ namespace slog
         wss << L"Error: " <<
                 std::wstring(message.begin(), message.end()) <<
                 L"\n" << error.ErrorMessage() << "\nFile: " << filename << "\nLine: " << line;
+        std::cout << "\033[31m";
+        std::cout << std::string(wss.str().begin(), wss.str().end()) << std::endl;
+        std::cout << "\033[0m";
         MessageBoxW(NULL, wss.str().c_str(), L"Error", MB_ICONERROR);
     };
 

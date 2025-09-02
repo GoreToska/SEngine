@@ -6,6 +6,7 @@
 #define DEFERREDRENDERSUBSYSTEM_H
 #include "GBuffer.h"
 #include "RenderSubsystem.h"
+#include "Component/SkyBoxComponent.h"
 
 
 class DeferredRenderSubsystem : public RenderSubsystem
@@ -17,7 +18,8 @@ public:
 
     virtual void Render(std::vector<std::weak_ptr<IRenderComponent>>& objectsToRender,
                         std::weak_ptr<CameraComponent> cameraComponent,
-                        std::vector<std::weak_ptr<LightComponent>>& lightComponents) override;
+                        std::vector<std::weak_ptr<LightComponent>>& lightComponents,
+                        std::weak_ptr<SkyBoxComponent> skybox) override;
 
 protected:
     std::unique_ptr<GBuffer> gBuffer;
