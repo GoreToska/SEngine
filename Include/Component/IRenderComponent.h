@@ -6,6 +6,7 @@
 #define IRENDER_H
 #include <memory>
 
+#include "CameraComponent.h"
 #include "IComponent.h"
 #include "Transform.h"
 #include "Render/ConstBuffer.h"
@@ -20,8 +21,7 @@ class IRenderComponent : public IComponent
 public:
     IRenderComponent(const std::weak_ptr<Transform>& transform, const std::string& vs = "Default_Deferred_VS",
                      const std::string& ps = "Default_Deferred_PS",
-                     const std::string& gs = "", D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-    );
+                     const std::string& gs = "", D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     virtual ~IRenderComponent();
 
@@ -29,12 +29,14 @@ public:
 
     virtual void Update(const float& deltaTime) override;
 
-    virtual void Render();
+    virtual void Render(std::weak_ptr<CameraComponent> camera);
 
     const std::weak_ptr<Transform>& GetTransform() const;
 
 protected:
     std::weak_ptr<Transform> transform;
+
+    ConstBuffer<PerObjectBuffer> objectMatrixBuffer;
 
     std::string v_shader;
     std::string p_shader;

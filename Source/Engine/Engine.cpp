@@ -66,17 +66,9 @@ void Engine::Update()
     deltaTime = timer.GetMilliseconds();
     timer.Restart();
 
-    for (auto it = gameObjects.begin(); it != gameObjects.end();)
+    for (auto it = gameObjects.begin(); it != gameObjects.end(); ++it)
     {
-        if (const auto object = it->lock())
-        {
-            object->Update(deltaTime);
-            ++it;
-        }
-        else
-        {
-            it = gameObjects.erase(it);
-        }
+        (*it)->Update(deltaTime);
     }
 }
 
@@ -110,7 +102,7 @@ Graphics& Engine::GetGraphics() const
     return *graphics;
 }
 
-std::vector<std::weak_ptr<GameObject>>& Engine::GetGameObjects()
+std::vector<std::shared_ptr<GameObject>>& Engine::GetGameObjects()
 {
     return gameObjects;
 }

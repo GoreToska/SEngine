@@ -10,8 +10,15 @@
 
 #include "CameraComponent.h"
 #include "IComponent.h"
+#include "Render/ConstBuffer.h"
 #include "Render/ModelBuffer.h"
 
+
+// TODO: should consider to make this component as render component
+// because it is actually being rendered...
+// but it should be rendered in its own pass
+
+struct PerObjectBuffer;
 
 class SkyBoxComponent : public IComponent
 {
@@ -23,7 +30,7 @@ public:
                     const std::string& vs = "Default_Skybox_VS",
                     const std::string& ps = "Default_Skybox_PS");
 
-    void Render();
+    void Render(std::weak_ptr<CameraComponent> camera);
 
     void SetShaders() const;
 
@@ -35,6 +42,8 @@ private:
     std::vector<DWORD> indices;
     VertexBuffer<Vector3D> vertexBuffer;
     IndexBuffer indexBuffer;
+
+    ConstBuffer<PerObjectBuffer> objectMatrixBuffer;
 
     std::string ps;
     std::string vs;

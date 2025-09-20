@@ -61,6 +61,10 @@ protected:
     ProjectionType projectionType;
     Matrix projectionMatrix;
     Matrix viewMatrix;
+
+    static Matrix& CreatePerspectiveLH(float fov, float aspectRatio, float nearPlane, float farPlane);
+
+    static Matrix& CreateLookAtLH(const Vector3D& eye, const Vector3D& target, const Vector3D& up);
 };
 
 

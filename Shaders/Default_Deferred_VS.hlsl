@@ -22,6 +22,10 @@ cbuffer perObjectBuffer : register(b0)
     matrix world;
     matrix view;
     matrix projection;
+    matrix worldView;
+    matrix viewProjection;
+    matrix worldViewProjection;
+    matrix inverseWorld;
     matrix inverseView;
     matrix inverseProjection;
 };
@@ -38,12 +42,14 @@ PS_IN main(VS_IN input)
     output.viewPos = mul(output.viewPos, view);
 
     output.tex = input.tex;
-	//output.norm.z = - output.norm.z;
-    output.norm = normalize(mul(float4(input.norm.xyz, 0), world));
-    output.norm.z = -output.norm.z;
 
+    output.norm = float4(mul(input.norm.xyz, (float3x3)world), 0);
     output.tangent = mul(input.tangent, (float3x3)world);
     output.bitangent = mul(input.bitangent, (float3x3)world);
+
+    output.norm = normalize(output.norm);
+    output.tangent = normalize(output.tangent);
+    output.bitangent = normalize(output.bitangent);
 
     return output;
 }

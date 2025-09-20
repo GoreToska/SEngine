@@ -11,9 +11,12 @@ struct PerObjectBuffer
     Matrix world;
     Matrix view;
     Matrix projection;
+    Matrix worldView;
+    Matrix viewProjection;
+    Matrix worldViewProjection;
+    Matrix inverseWorld;
     Matrix inverseView;
     Matrix inverseProjection;
-    BOOL ignoreLight;
 };
 
 struct LightBuffer

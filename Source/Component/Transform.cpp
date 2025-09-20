@@ -4,6 +4,8 @@
 
 #include "Component/Transform.h"
 
+#include "Utilities/SMath.h"
+
 Transform::Transform(const Vector3D position, const Quaternion rotation,
                      const Vector3D scale)
     : position(position), rotation(rotation), scale(scale)
@@ -39,7 +41,10 @@ void Transform::SetRotation(const Quaternion rotation)
 
 void Transform::SetRotation(const Vector3D rotation)
 {
-    this->rotation = Quaternion::CreateFromYawPitchRoll(rotation.y, rotation.x, rotation.z);
+    auto x = smath::ToRadians(rotation.x);
+    auto y = smath::ToRadians(rotation.y);
+    auto z = smath::ToRadians(rotation.z);
+    this->rotation = Quaternion::CreateFromYawPitchRoll(x, y, z);
 }
 
 void Transform::AddRotation(const Vector3D rotation)

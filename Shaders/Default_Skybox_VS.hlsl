@@ -5,6 +5,10 @@ cbuffer perObjectBuffer : register(b0)
     matrix world;
     matrix view;
     matrix projection;
+	matrix worldView;
+	matrix viewProj;
+	matrix worldViewProjection;
+    matrix inverseWorld;
     matrix inverseView;
     matrix inverseProjection;
 };

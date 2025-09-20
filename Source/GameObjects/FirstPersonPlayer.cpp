@@ -54,7 +54,7 @@ void FirstPersonPlayer::Update(const float deltaTime)
 
 void FirstPersonPlayer::OnLook(const int x, const int y)
 {
-    lookDirection = Vector3D(-y, -x, 0);
+    lookDirection = Vector3D(-y, x, 0);
 }
 
 void FirstPersonPlayer::OnRightDown(const int x, const int y)
@@ -88,13 +88,13 @@ void FirstPersonPlayer::OnMoveButtonPress(const unsigned char c)
 
     if (c == rightKey)
     {
-        velocity += Vector3D(1, 0, 0);
+        velocity += Vector3D(-1, 0, 0);
         return;
     }
 
     if (c == leftKey)
     {
-        velocity += Vector3D(-1, 0, 0);
+        velocity += Vector3D(1, 0, 0);
         return;
     }
 
@@ -127,13 +127,13 @@ void FirstPersonPlayer::OnMoveButtonRelease(const unsigned char c)
 
     if (c == rightKey)
     {
-        velocity += Vector3D(-1, 0, 0);
+        velocity += Vector3D(1, 0, 0);
         return;
     }
 
     if (c == leftKey)
     {
-        velocity += Vector3D(1, 0, 0);
+        velocity += Vector3D(-1, 0, 0);
         return;
     }
 

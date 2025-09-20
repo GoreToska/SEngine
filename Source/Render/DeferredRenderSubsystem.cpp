@@ -50,13 +50,19 @@ void DeferredRenderSubsystem::DrawLight(std::vector<std::weak_ptr<LightComponent
     SDeviceContext->OMSetDepthStencilState(depthStencilState.Get(), 0);
     SDeviceContext->PSSetSamplers(0, 1, samplerState.GetAddressOf());
     SDeviceContext->PSSetSamplers(1, 1, shadowSamplerState.GetAddressOf());
-    SDeviceContext->PSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
+    SDeviceContext->PSSetConstantBuffers(0, 1, lightObjectBuffer.GetAddressOf());
     SDeviceContext->PSSetConstantBuffers(2, 1, shadowBuffer.GetAddressOf());
 
-    if (const auto camera = SEngine.GetGraphics().GetCurrentCamera().lock())
+    const auto camera = SEngine.GetGraphics().GetCurrentCamera().lock();
+    if (camera)
     {
         shadowBuffer.GetData()->CameraPosition = camera->GetPosition();
         shadowBuffer.ApplyChanges();
+    }
+    else
+    {
+        SLOG("No camera!");
+        return;
     }
 
     gBuffer->PSBindResourceViews(0);
@@ -65,8 +71,16 @@ void DeferredRenderSubsystem::DrawLight(std::vector<std::weak_ptr<LightComponent
     {
         if (auto comp = it->lock())
         {
-            objectMatrixBuffer.GetData()->world = comp->GetTransform().lock()->GetWorldMatrix().Transpose();
-            objectMatrixBuffer.ApplyChanges();
+            lightObjectBuffer.GetData()->world = comp->GetTransform().lock()->GetWorldMatrix().Transpose();
+            lightObjectBuffer.GetData()->inverseWorld = comp->GetTransform().lock()->GetWorldMatrix().Invert().
+                    Transpose();
+            lightObjectBuffer.GetData()->worldView =
+                    (comp->GetTransform().lock()->GetWorldMatrix() * camera->GetViewMatrix()).Transpose();
+            lightObjectBuffer.GetData()->worldViewProjection =
+            (comp->GetTransform().lock()->GetWorldMatrix() * camera->GetViewMatrix() * camera->
+             GetProjectionMatrix()).Transpose();
+
+            lightObjectBuffer.ApplyChanges();
             SetLightBuffer(comp);
             DrawFullScreenQuad();
             ++it;
@@ -87,7 +101,7 @@ void DeferredRenderSubsystem::SetLightBuffer(std::shared_ptr<LightComponent>& li
         const auto light = std::static_pointer_cast<DirectionalLightComponent>(lightComponent);
         lightBuffer.GetData()->lightColor = light->GetColor();
         lightBuffer.GetData()->lightDirection = Vector4D(light->GetDirection());
-        lightBuffer.GetData()->lightPosition = light->GetPosition();
+        //lightBuffer.GetData()->lightPosition = light->GetPosition();
         lightBuffer.GetData()->sourceType = light->GetLightType();
         lightBuffer.GetData()->intensity = light->GetIntensity();
         lightBuffer.ApplyChanges();

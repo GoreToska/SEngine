@@ -27,11 +27,16 @@ public:
 
     static void PrintSupportedFormats();
 
+    static void SetDebug(bool value);
+
 private:
     static void ProcessNode(const std::filesystem::path& path, const aiNode& node, const aiScene& scene,
+                            const Matrix& parentMatrix,
                             std::vector<Mesh>& out_meshes);
 
-    static Mesh ProcessMesh(const std::filesystem::path& path, const aiMesh& mesh, const aiScene& scene,
+    static Mesh ProcessMesh(const std::filesystem::path& path, const aiMesh& mesh,
+                            const aiScene& scene,
+                            const aiNode& node, const Matrix& parentMatrix,
                             const aiMaterial& material);
 
     static Texture GetColorTexture(const aiMaterial& material, aiTextureType type);
@@ -41,6 +46,8 @@ private:
 
     static TextureStorage GetTextureStorageType(const aiScene& scene, const aiMaterial& material,
                                                 size_t index, aiTextureType type);
+
+    static bool debug;
 };
 
 

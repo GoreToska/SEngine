@@ -15,7 +15,7 @@ CameraComponent::CameraComponent(const Vector3D position, const Quaternion rotat
 {
     fov = smath::ToRadians(90);
     aspectRatio = static_cast<float>(SEngine.GetGraphics().GetClientWidth()) /
-        static_cast<float>(SEngine.GetGraphics().GetClientHeight());
+                  static_cast<float>(SEngine.GetGraphics().GetClientHeight());
     orthoWidth = static_cast<float>(SEngine.GetGraphics().GetClientWidth()) / 100.0f;
     orthoHeight = static_cast<float>(SEngine.GetGraphics().GetClientHeight()) / 100.0f;
 
@@ -26,7 +26,7 @@ void CameraComponent::Update(const float& deltaTime)
 {
     Super::Update(deltaTime);
 
-    viewMatrix = Matrix::CreateLookAt(position, position + GetForward(), Vector3D::Up);
+    viewMatrix = CreateLookAtLH(position, position + GetForward(), Vector3D::Up);
 }
 
 void CameraComponent::SetProjectionType(const ProjectionType type)
@@ -39,12 +39,12 @@ void CameraComponent::SetProjectionType(const ProjectionType type)
 
 void CameraComponent::SetPerspectiveProjection()
 {
-    projectionMatrix = Matrix::CreatePerspectiveFieldOfView(fov, aspectRatio, nearZ, farZ);
+    projectionMatrix = CreatePerspectiveLH(fov, aspectRatio, nearZ, farZ);
 }
 
 void CameraComponent::SetOrthographicProjection()
 {
-    projectionMatrix = Matrix::CreateOrthographic(orthoWidth, orthoHeight, nearZ, farZ);
+    //projectionMatrix = Matrix::CreateOrthographic(orthoWidth, orthoHeight, nearZ, farZ);
 }
 
 void CameraComponent::SetPerspectiveProjection(float fovDegrees, float aspectRatio, float nearZ, float farZ)
@@ -123,4 +123,20 @@ void CameraComponent::GetFrustumCorners(std::vector<Vector4D>& corners) const
             }
         }
     }
+}
+
+Matrix& CameraComponent::CreatePerspectiveLH(float fov, float aspectRatio, float nearPlane, float farPlane)
+{
+    using namespace DirectX;
+    Matrix R;
+    XMStoreFloat4x4(&R, XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane));
+    return R;
+}
+
+Matrix& CameraComponent::CreateLookAtLH(const Vector3D& eye, const Vector3D& target, const Vector3D& up)
+{
+    using namespace DirectX;
+    Matrix R;
+    XMStoreFloat4x4(&R, XMMatrixLookAtLH(eye, target, up));
+    return R;
 }

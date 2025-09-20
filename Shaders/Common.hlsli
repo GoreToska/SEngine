@@ -9,10 +9,14 @@ float3 MapNormal(
     uniform Texture2D nmap,
     uniform SamplerState splr)
 {
-	const float3x3 TBN = float3x3(normalize(tan), normalize(bitan), normalize(normal));
-    float3 normalSample = nmap.Sample(splr, tc).xyz;
-	normalSample = normalSample * 2.0 - 1.0;
-    return normalize(mul(normalSample, TBN));
+	float3 normalSample = nmap.Sample(splr, tc).xyz;
+	normalSample = normalize(normalSample * 2.0f - 1.0f);
+ 	float3 N = normal;
+    float3 T = normalize(tan - dot(tan, N) * N);
+    float3 B = cross(N, T);
+    float3x3 TBN = float3x3(T, B, N);
+	float3 bumpedNormalW = mul(normalSample, TBN);
+	return normalize(bumpedNormalW);
 }
 
 float3 MapToSRGB(in float3 color)

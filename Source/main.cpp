@@ -27,17 +27,23 @@ int main()
     point_light->GetLight().lock()->SetIntensity(10);
     SEngine.SpawnGameObject(point_light);
 
-    auto go = std::make_shared<GameObject>(Vector3D(4, 0, 0));
-    //go->AddComponent<MeshRender>(go, modelPath / "NanoSuit" / "nanosuit.obj");
+    ModelImporter::SetDebug(true);
+
+    auto go = std::make_shared<GameObject>(Vector3D(0, 0, 0), Quaternion::Identity, Vector3D(0.01, 0.01, 0.01));
+    //go->AddComponent<MeshRender>(go->GetTransform(), (dataPath / "Car" / "dodge_challenger.fbx").string());
     //go->AddComponent<MeshRender>(go, modelPath / "Orange" / "orange_disktexture.fbx");
-    go->AddComponent<MeshRender>(go->GetTransform(), (dataPath / "Card" / "MemoryCard.obj").string());
+    //go->AddComponent<MeshRender>(go->GetTransform(), (dataPath / "Card" / "MemoryCard.obj").string());
     SEngine.SpawnGameObject(go);
 
     auto go2 = std::make_shared<GameObject>(Vector3D(4, 0, 4), Quaternion::Identity, Vector3D(5, 5, 5));
     go2->AddComponent<MeshRender>(go2->GetTransform(), dataPath / "Mark2" / "Mark2.gltf");
     SEngine.SpawnGameObject(go2);
 
-    auto go3 = std::make_shared<GameObject>(Vector3D(-10, 0, 10), Quaternion::Identity, Vector3D(5, 5, 5));
+    auto go4 = std::make_shared<GameObject>(Vector3D(-4, 0, 4), Quaternion::Identity, Vector3D(5, 5, 5));
+    go4->AddComponent<MeshRender>(go2->GetTransform(), dataPath / "CementWall" / "Wall.gltf");
+    SEngine.SpawnGameObject(go4);
+
+    auto go3 = std::make_shared<GameObject>(Vector3D(10, 0, 0), Quaternion::Identity, Vector3D(5, 5, 5));
     go3->AddComponent<MeshRender>(go3->GetTransform(), dataPath / "BrickWall" / "brick_wall.obj");
     SEngine.SpawnGameObject(go3);
 
@@ -62,10 +68,13 @@ int main()
 
     while (SEngine.IsRunning())
     {
-        if (Keyboard::Instance().IsKeyPressed('X'))
-            point_light->GetTransform().lock()->SetPosition(player->GetTransform().lock()->GetPosition());
+        //if (Keyboard::Instance().IsKeyPressed('X'))
+            //point_light->GetTransform().lock()->SetPosition(player->GetTransform().lock()->GetPosition());
 
-        direct_light->GetTransform().lock()->AddRotation({1, 1, 0}, 0.001);
+        if (Keyboard::Instance().IsKeyPressed('X'))
+            direct_light->GetTransform().lock()->SetRotation(player->GetComponent<CameraComponent>()->GetRotation());
+        //go3->GetTransform().lock()->AddRotation({0, 0, 1}, 0.002);
+        //direct_light->GetTransform().lock()->AddRotation({1, 1, 0}, 0.001);
         SEngine.Run();
     }
 

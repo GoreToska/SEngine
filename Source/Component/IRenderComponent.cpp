@@ -16,6 +16,7 @@ IRenderComponent::IRenderComponent(const std::weak_ptr<Transform>& transform, co
     p_shader(ps), g_shader(gs),
     topology(topology)
 {
+    ThrowIfFailed(objectMatrixBuffer.Initialize(), "Failed to initialize const buffer.");
 }
 
 IRenderComponent::~IRenderComponent()
@@ -40,9 +41,10 @@ void IRenderComponent::Update(const float& deltaTime)
     Super::Update(deltaTime);
 }
 
-void IRenderComponent::Render()
+void IRenderComponent::Render(std::weak_ptr<CameraComponent> camera)
 {
     SDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    SDeviceContext->VSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
 }
 
 const std::weak_ptr<Transform>& IRenderComponent::GetTransform() const

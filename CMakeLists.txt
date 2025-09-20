@@ -11,9 +11,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/build)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Shaders)
-file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
-file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Shaders)
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Shaders)
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Shaders)
+
+message(STATUS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
 
 find_package(assimp QUIET)
 if (NOT assimp_FOUND)
@@ -113,6 +115,8 @@ add_library(${PROJECT_NAME}_lib STATIC
         Source/GameObjects/Skybox.cpp
         Include/GameObjects/Skybox.h
         Include/Utilities/PrimitiveVolumes.h
+        Source/GameObjects/DebugLine.cpp
+        Include/GameObjects/DebugLine.h
 )
 
 add_executable(${PROJECT_NAME}
@@ -190,6 +194,8 @@ add_executable(${PROJECT_NAME}
         Source/GameObjects/Skybox.cpp
         Include/GameObjects/Skybox.h
         Include/Utilities/PrimitiveVolumes.h
+        Source/GameObjects/DebugLine.cpp
+        Include/GameObjects/DebugLine.h
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE DirectXTK d3dcompiler dxguid dxgi d3d11 assimp)

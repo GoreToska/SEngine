@@ -5,6 +5,8 @@
 #ifndef SMATH_H
 #define SMATH_H
 #include <DirectXMath.h>
+#include "Component/CameraComponent.h"
+#include <memory>
 
 namespace smath
 {

@@ -17,11 +17,24 @@ SkyBoxComponent::SkyBoxComponent(const std::filesystem::path& path,
     : Super(), path(path), textureNames(textures), ps(ps), vs(vs)
 {
     InitializeSkybox();
+
+    ThrowIfFailed(objectMatrixBuffer.Initialize(), "Failed to initialize object matrix buffer");
 }
 
-void SkyBoxComponent::Render()
+void SkyBoxComponent::Render(std::weak_ptr<CameraComponent> camera)
 {
     SDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    auto cameraComponent = camera.lock();
+    if (!cameraComponent)
+        return;
+
+    objectMatrixBuffer.GetData()->view = cameraComponent->GetViewMatrix().Transpose();
+    objectMatrixBuffer.GetData()->projection = cameraComponent->GetProjectionMatrix().Transpose();
+    objectMatrixBuffer.ApplyChanges();
+
+    SDeviceContext->VSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
+    SDeviceContext->PSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
 
     ID3D11ShaderResourceView* nullResource = nullptr;
     for (size_t i = 0; i < 7; i++)

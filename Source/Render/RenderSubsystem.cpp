@@ -14,24 +14,21 @@ void RenderSubsystem::Initialize(HWND hwnd, int width, int height)
     clientWidth = width;
     clientHeight = height;
     InitializeDirectX(hwnd);
-    ThrowIfFailed(objectMatrixBuffer.Initialize(), "Failed to initialize buffer.");
     ThrowIfFailed(lightBuffer.Initialize(), "Failed to initialize light buffer.");
     ThrowIfFailed(shadowBuffer.Initialize(), "Failed to initialize light buffer.");
+    ThrowIfFailed(lightObjectBuffer.Initialize(), "Failed to initialize light object.");
 }
 
 void RenderSubsystem::RenderSkyBox(std::weak_ptr<SkyBoxComponent> skybox,
                                    std::weak_ptr<CameraComponent> cameraComponent)
 {
+    SDeviceContext->RSSetState(rastStateCullFront.Get());
     if (auto camera = cameraComponent.lock())
     {
-        objectMatrixBuffer.GetData()->view = camera->GetViewMatrix().Transpose();
-        objectMatrixBuffer.GetData()->projection = camera->GetProjectionMatrix().Transpose();
-        objectMatrixBuffer.ApplyChanges();
-
         if (auto comp = skybox.lock())
         {
             comp->SetShaders();
-            comp->Render();
+            comp->Render(cameraComponent);
         }
     }
 }
@@ -65,24 +62,15 @@ void RenderSubsystem::RenderObjects(std::vector<std::weak_ptr<IRenderComponent>>
         return;
     }
 
-    objectMatrixBuffer.GetData()->view = camera->GetViewMatrix().Transpose();
-    objectMatrixBuffer.GetData()->projection = camera->GetProjectionMatrix().Transpose();
-    objectMatrixBuffer.GetData()->inverseView = camera->GetViewMatrix().Invert().Transpose();
-    objectMatrixBuffer.GetData()->inverseProjection = camera->GetProjectionMatrix().Invert().Transpose();
-
     for (auto it = objectsToRender.begin(); it != objectsToRender.end();)
     {
-        SDeviceContext->VSSetConstantBuffers(0, 1, objectMatrixBuffer.GetAddressOf());
-
         if (auto component = it->lock())
         {
             // TODO: update const buffers
             if (auto transform = component->GetTransform().lock())
             {
-                objectMatrixBuffer.GetData()->world = transform->GetWorldMatrix().Transpose();
-                objectMatrixBuffer.ApplyChanges();
                 component->SetShaders();
-                component->Render();
+                component->Render(camera);
             }
 
             ++it;
@@ -186,6 +174,7 @@ void RenderSubsystem::CreateRasterizerAndBlendState()
     rasterizerDesc = {};
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
     rasterizerDesc.CullMode = D3D11_CULL_NONE;
+
     ThrowIfFailed(
         SDevice->CreateRasterizerState(
             &rasterizerDesc,
@@ -195,6 +184,7 @@ void RenderSubsystem::CreateRasterizerAndBlendState()
     rasterizerDesc = {};
     rasterizerDesc.FillMode = D3D11_FILL_SOLID;
     rasterizerDesc.CullMode = D3D11_CULL_FRONT;
+
     ThrowIfFailed(
         SDevice->CreateRasterizerState(
             &rasterizerDesc,

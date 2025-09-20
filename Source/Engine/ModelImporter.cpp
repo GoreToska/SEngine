@@ -10,8 +10,11 @@
 #include <assimp/scene.h>
 
 #include "assimp/cimport.h"
+#include "Engine/Engine.h"
+#include "GameObjects/DebugLine.h"
 #include "Utilities/Logger.h"
 
+bool ModelImporter::debug = false;
 
 void ModelImporter::LoadModel(const std::filesystem::path& path, std::vector<Mesh>& out_meshes)
 {
@@ -24,10 +27,10 @@ void ModelImporter::LoadModel(const std::filesystem::path& path, std::vector<Mes
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path.string(),
                                              aiProcess_Triangulate |
-                                             aiProcess_ConvertToLeftHanded |
                                              aiProcess_GenNormals |
-                                             aiProcess_JoinIdenticalVertices |
-                                             aiProcess_CalcTangentSpace);
+                                             aiProcess_CalcTangentSpace |
+                                             aiProcess_FixInfacingNormals |
+                                             aiProcess_ConvertToLeftHanded);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
@@ -36,7 +39,7 @@ void ModelImporter::LoadModel(const std::filesystem::path& path, std::vector<Mes
 
     out_meshes.clear();
     out_meshes.reserve(scene->mNumMeshes);
-    ProcessNode(path, *scene->mRootNode, *scene, out_meshes);
+    ProcessNode(path, *scene->mRootNode, *scene, Matrix::Identity, out_meshes);
 }
 
 void ModelImporter::PrintSupportedFormats()
@@ -53,22 +56,33 @@ void ModelImporter::PrintSupportedFormats()
     SLOG("Supported formats: " + stream.str());
 }
 
+void ModelImporter::SetDebug(bool value)
+{
+    debug = value;
+}
+
 void ModelImporter::ProcessNode(const std::filesystem::path& path, const aiNode& node, const aiScene& scene,
+                                const Matrix& parentMatrix,
                                 std::vector<Mesh>& out_meshes)
 {
-    for (size_t i = 0; i < scene.mNumMeshes; ++i)
+    Matrix nodeTransform = Matrix(&node.mTransformation.a1).Transpose() * parentMatrix;
+
+    for (size_t i = 0; i < node.mNumMeshes; ++i)
     {
-        auto mesh = scene.mMeshes[i];
-        out_meshes.emplace_back(ProcessMesh(path, *mesh, scene, *scene.mMaterials[mesh->mMaterialIndex]));
+        unsigned int meshIndex = node.mMeshes[i];
+        auto mesh = scene.mMeshes[meshIndex];
+        out_meshes.emplace_back(ProcessMesh(path, *mesh, scene, node, nodeTransform,
+                                            *scene.mMaterials[mesh->mMaterialIndex]));
     }
 
-    /*for (size_t i = 0; i < node.mNumChildren; ++i)
+    for (size_t i = 0; i < node.mNumChildren; ++i)
     {
-        ProcessNode(path, *node.mChildren[i], scene, out_meshes);
-    }*/
+        ProcessNode(path, *node.mChildren[i], scene, nodeTransform, out_meshes);
+    }
 }
 
 Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh& mesh, const aiScene& scene,
+                                const aiNode& node, const Matrix& parentMatrix,
                                 const aiMaterial& material)
 {
     std::vector<Vertex> vertices;
@@ -82,11 +96,14 @@ Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh&
 
         vertex.position.x = mesh.mVertices[i].x;
         vertex.position.y = mesh.mVertices[i].y;
-        vertex.position.z = -mesh.mVertices[i].z;
+        vertex.position.z = mesh.mVertices[i].z;
 
-        vertex.normal.x = mesh.mNormals[i].x;
-        vertex.normal.y = mesh.mNormals[i].y;
-        vertex.normal.z = mesh.mNormals[i].z;
+        if (mesh.mNormals)
+        {
+            vertex.normal.x = mesh.mNormals[i].x;
+            vertex.normal.y = mesh.mNormals[i].y;
+            vertex.normal.z = mesh.mNormals[i].z;
+        }
 
         if (mesh.mTangents)
         {
@@ -137,8 +154,10 @@ Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh&
 
     BOOL has_texture;
     mesh_material.albedoTexture = GetTexture(path, scene, material, Texture::TextureType::Albedo, has_texture);
+
     mesh_material.normalTexture = GetTexture(path, scene, material, Texture::TextureType::Normal,
                                              mesh_material.normalMapEnabled);
+
     mesh_material.metallicTexture = GetTexture(path, scene, material, Texture::TextureType::Metallic, has_texture);
     if (!has_texture)
     {
@@ -151,7 +170,7 @@ Mesh ModelImporter::ProcessMesh(const std::filesystem::path& path, const aiMesh&
         mesh_material.roughnessTexture.InitializeTextureWithColor({1, 1, 1, 1});
     }
 
-    return Mesh(vertices, indices, mesh_material);
+    return Mesh(vertices, indices, mesh_material, parentMatrix);
 }
 
 Texture ModelImporter::GetColorTexture(const aiMaterial& material, aiTextureType type)
@@ -211,6 +230,13 @@ Texture ModelImporter::GetTexture(const std::filesystem::path& path, const aiSce
         {
             storageType = GetTextureStorageType(scene, material, 0, aiTextureType_DIFFUSE);
             has_texture = TRUE;
+        }
+        else
+        {
+            aiColor3D aiColor(1.0f, 1.0f, 1.0f);
+            material.Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
+            texture.InitializeTextureWithColor(Color(aiColor.r, aiColor.g, aiColor.b));
+            return texture;
         }
     }
     else if (type == Texture::TextureType::Normal)

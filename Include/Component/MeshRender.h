@@ -12,7 +12,8 @@ class Mesh
 {
     // TODO: may be every material should have separate shader?
 public:
-    Mesh(const std::vector<Vertex>& vertices, const std::vector<DWORD>& indices, const Material& material);
+    Mesh(const std::vector<Vertex>& vertices, const std::vector<DWORD>& indices, const Material& material,
+         const Matrix& parentMatrix = Matrix::Identity);
 
     Mesh(const Mesh& other);
 
@@ -24,6 +25,8 @@ public:
 
     void Render();
 
+    const Matrix& GetParentMatrix() const;
+
     //void SetShaders();
 
 private:
@@ -34,6 +37,8 @@ private:
 
     Material material;
     ConstBuffer<MaterialBuffer> objectMaterialBuffer;
+
+    Matrix parentMatrix;
 };
 
 class MeshRender : public IRenderComponent
@@ -47,7 +52,15 @@ public:
                const std::string& gs = "",
                D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    virtual void Render() override;
+    MeshRender(const std::weak_ptr<Transform>& transform,
+               std::vector<Vertex>& vertices,
+               const Color color,
+               const std::string& vs = "Default_Deferred_VS",
+               const std::string& ps = "Default_Deferred_PS",
+               const std::string& gs = "",
+               D3D_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    virtual void Render(std::weak_ptr<CameraComponent> camera) override;
 
 protected:
     std::vector<Mesh> meshes;

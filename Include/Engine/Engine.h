@@ -52,7 +52,7 @@ public:
 
     Graphics& GetGraphics() const;
 
-    std::vector<std::weak_ptr<GameObject>>& GetGameObjects();
+    std::vector<std::shared_ptr<GameObject>>& GetGameObjects();
 
     void SpawnGameObject(std::shared_ptr<GameObject> object);
 
@@ -63,7 +63,7 @@ private:
     float deltaTime = 0.0f;
     bool isRunning = true;
 
-    std::vector<std::weak_ptr<GameObject>> gameObjects;
+    std::vector<std::shared_ptr<GameObject>> gameObjects;
 };
 
 

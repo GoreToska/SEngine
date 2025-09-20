@@ -11,6 +11,10 @@ cbuffer perObjectBuffer : register(b0)
     matrix world;
     matrix view;
     matrix projection;
+	matrix worldView;
+	matrix viewProjection;
+	matrix worldViewProjection;
+    matrix inverseWorld;
     matrix inverseView;
     matrix inverseProjection;
 }
@@ -56,15 +60,16 @@ float4 main(PS_IN input) : SV_Target
     const float client_width = 1280.0f;
     const float client_height = 720.0f;
     // ---------------------------------
-    
+
 
     float3 lightDir = 0;
     float depth = depthTex.Load(int3(input.pos.xy, 0)).x;
     float3 albedo = albedoTex.Load(int3(input.pos.xy, 0)).xyz;
     float metallic = metalTex.Load(int3(input.pos.xy, 0)).x;
 	float roughness = roughnessTex.Load(int3(input.pos.xy, 0)).x;
-    float3 normal = normalTex.Load(int3(input.pos.xy, 0)).xyz;
+    float3 normal = normalize(normalTex.Load(int3(input.pos.xy, 0)).xyz);
     float nonlinearDepth = nonLinearDepthTex.Load(int3(input.pos.xy, 0)).x;
+
 
     float ndcX = input.pos.x / client_width * 2.0f - 1.0f;
     float ndcY = -(input.pos.y / client_height * 2.0f - 1.0f);
@@ -81,7 +86,12 @@ float4 main(PS_IN input) : SV_Target
 	if(sourceType == DIRECTIONAL_LIGHT)
 		L = -normalize(lightDirection);
 	else if(sourceType == SPOT_LIGHT || sourceType == POINT_LIGHT)
+    {
 		L = normalize(lightPosition - globalVertPos);
+    }
+
+    //return float4(normal, 1);
+    float NdotL = max(dot(normal, L), 0.0);
 
 	float3 H = normalize(V + L);
 	float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metallic);
@@ -97,19 +107,23 @@ float4 main(PS_IN input) : SV_Target
 	float3 kD = 1.0 - kS;
 	kD *= 1.0 - metallic;
 
-	float NdotL = max(dot(normal, L), 0.0);
 	float3 diffuse = kD * albedo / PI;
 
 	float3 ambient = float3(0.03, 0.03, 0.03);
 
-	float3 radiance = lightColor * intensity; // Add attenuation for point light!
+	float attenuation = 1.0;
+    if (sourceType == POINT_LIGHT || sourceType == SPOT_LIGHT)
+    {
+        float distance = length(lightPosition - globalVertPos);
+        attenuation = 1.0 / (constAttenuation + linearAttenuation * distance + exponentAttenuation * distance * distance);
+    }
+
+    float3 radiance = lightColor * intensity * attenuation;
+
+	//diffuse += ambient;
 
 	float3 color = (diffuse + specular) * radiance * NdotL;
 
-	if (any(diffuse > 0.0))
-	{
-		diffuse += ambient;
-	}
 
 	return max(float4(MapToSRGB(color), 1.0), 0);
 }

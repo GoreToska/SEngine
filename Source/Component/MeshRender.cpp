@@ -10,10 +10,12 @@
 #include "Engine/ModelImporter.h"
 #include "Utilities/Asserter.h"
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<DWORD>& indices, const Material& material)
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<DWORD>& indices, const Material& material,
+           const Matrix& parentMatrix)
     : vertices(vertices),
       indices(indices),
-      material(material)
+      material(material),
+      parentMatrix(parentMatrix)
 {
     ThrowIfFailed(
         vertexBuffer.Initialize(
@@ -21,11 +23,14 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<DWORD>& indice
             this->vertices.size()),
         "Failed to initialize vertex buffer");
 
-    ThrowIfFailed(
-        indexBuffer.Initialize(
-            this->indices.data(),
-            this->indices.size()),
-        "Failed to initialize index buffer");
+    if (!indices.empty())
+    {
+        ThrowIfFailed(
+            indexBuffer.Initialize(
+                this->indices.data(),
+                this->indices.size()),
+            "Failed to initialize index buffer");
+    }
 
     ThrowIfFailed(
         objectMaterialBuffer.Initialize(),
@@ -37,6 +42,7 @@ Mesh::Mesh(const Mesh& other)
     vertices = other.vertices;
     indices = other.indices;
     material = other.material;
+    parentMatrix = other.parentMatrix;
 
     ThrowIfFailed(
         vertexBuffer.Initialize(
@@ -61,7 +67,8 @@ Mesh::Mesh(Mesh&& other) noexcept
       vertexBuffer(std::move(other.vertexBuffer)),
       indexBuffer(std::move(other.indexBuffer)),
       material(std::move(other.material)),
-      objectMaterialBuffer(std::move(other.objectMaterialBuffer))
+      objectMaterialBuffer(std::move(other.objectMaterialBuffer)),
+      parentMatrix(std::move(other.parentMatrix))
 
 {
     other.vertices.clear();
@@ -70,9 +77,13 @@ Mesh::Mesh(Mesh&& other) noexcept
 
 Mesh& Mesh::operator=(const Mesh& other)
 {
+    if (&other == this)
+        return *this;
+
     vertices = other.vertices;
     indices = other.indices;
     material = other.material;
+    parentMatrix = other.parentMatrix;
 
     ThrowIfFailed(
         vertexBuffer.Initialize(
@@ -95,12 +106,16 @@ Mesh& Mesh::operator=(const Mesh& other)
 
 Mesh& Mesh::operator=(Mesh&& other) noexcept
 {
+    if (&other == this)
+        return *this;
+
     vertices = std::move(other.vertices);
     indices = std::move(other.indices);
     material = std::move(other.material);
     vertexBuffer = std::move(other.vertexBuffer);
     indexBuffer = std::move(other.indexBuffer);
     objectMaterialBuffer = std::move(other.objectMaterialBuffer);
+    parentMatrix = std::move(other.parentMatrix);
     other.vertices.clear();
     other.indices.clear();
     return *this;
@@ -151,6 +166,11 @@ void Mesh::Render()
     }
 }
 
+const Matrix& Mesh::GetParentMatrix() const
+{
+    return parentMatrix;
+}
+
 MeshRender::MeshRender(const std::weak_ptr<Transform>& transform,
                        const std::filesystem::path& path,
                        const std::string& vs,
@@ -160,13 +180,46 @@ MeshRender::MeshRender(const std::weak_ptr<Transform>& transform,
     ModelImporter::LoadModel(path, meshes);
 }
 
-void MeshRender::Render()
+MeshRender::MeshRender(const std::weak_ptr<Transform>& transform, std::vector<Vertex>& vertices, const Color color,
+                       const std::string& vs, const std::string& ps, const std::string& gs,
+                       D3D_PRIMITIVE_TOPOLOGY topology)
+    : Super(transform, vs, ps, gs, topology)
+{
+    Material material;
+    material.albedoTexture.InitializeTextureWithColor(color);
+    meshes.push_back(Mesh(vertices, {}, material));
+}
+
+void MeshRender::Render(std::weak_ptr<CameraComponent> camera)
 {
     SetShaders();
-    Super::Render();
+    Super::Render(camera);
+
+    const auto cameraComponent = camera.lock();
+    if (!cameraComponent)
+        return;
+
+    auto view = cameraComponent->GetViewMatrix();
+    auto projection = cameraComponent->GetProjectionMatrix();
+    objectMatrixBuffer.GetData()->view = view.Transpose();
+    objectMatrixBuffer.GetData()->projection = projection.Transpose();
+    objectMatrixBuffer.GetData()->viewProjection = (view * projection).Transpose();
+    objectMatrixBuffer.GetData()->inverseView = view.Invert().Transpose();
+    objectMatrixBuffer.GetData()->inverseProjection = projection.Invert().Transpose();
 
     for (auto& mesh: meshes)
     {
-        mesh.Render();
+        if (auto transform = GetTransform().lock())
+        {
+            auto world = mesh.GetParentMatrix() * transform->GetWorldMatrix();
+            objectMatrixBuffer.GetData()->world = world.Transpose();
+            objectMatrixBuffer.GetData()->inverseWorld = world.Invert().Transpose();
+            objectMatrixBuffer.GetData()->worldView = (world * view).Transpose();
+            objectMatrixBuffer.GetData()->worldViewProjection = (world * view * projection).Transpose();
+
+            objectMatrixBuffer.ApplyChanges();
+
+            mesh.Render();
+        }
     }
 }

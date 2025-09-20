@@ -48,13 +48,23 @@ GBuffer main(PS_IN input)
     [branch]
     if(normalMapEnabled)
     {
-        const float3 mappedNormal = MapNormal(normalize(input.tangent),
+        /*const float3 mappedNormal = MapNormal(normalize(input.tangent),
         normalize(input.bitangent), input.norm, input.tex, normalTexture, samplerState);
 
         // TODO: make normal map weight
         //buf.normal.xyz = lerp(input.norm, mappedNormal, weight);
         buf.normal.xyz = mappedNormal;
-		buf.normal.w = 0;
+		buf.normal.w = 0;*/
+
+        float4 bumpMap = normalTexture.Sample(samplerState, input.tex);
+        bumpMap = (bumpMap * 2.0f) - 1.0f;
+        bumpMap.x = -bumpMap.x;
+        input.tangent = normalize(input.tangent);
+        input.tangent = normalize(input.bitangent);
+        input.tangent = normalize(input.norm);
+        float3x3 TBN = float3x3(input.tangent, input.bitangent, input.norm.xyz);
+
+	    buf.normal.xyz = mul(bumpMap,TBN);
     }
     else
     {
