@@ -21,13 +21,14 @@ float3 MapNormal(
 
 float3 MapToSRGB(in float3 color)
 {
-	float3 x = color * 12.92f;
-    float3 y = 1.055f * pow(saturate(color), 1.0f / 2.4f) - 0.055f;
+    float3 clr = pow(color, 1.0 / 2.2);
 
-    float3 clr = color;
-    clr.r = color.r < 0.0031308f ? x.r : y.r;
-    clr.g = color.g < 0.0031308f ? x.g : y.g;
-    clr.b = color.b < 0.0031308f ? x.b : y.b;
+    return clr;
+}
+
+float3 MapToRGB(in float3 color)
+{
+    float3 clr = pow(color, 2.2);
 
     return clr;
 }

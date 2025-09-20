@@ -73,6 +73,7 @@ GBuffer main(PS_IN input)
 
     float depth = (input.viewPos.z - nearPlane) / (farPlane - nearPlane);
     float4 textureColor = diffuseTexture.Sample(samplerState, input.tex);
+    textureColor.xyz = MapToRGB(textureColor.xyz);
 
     buf.depth.xyz = float3(depth, depth, depth);
     buf.diffuse =  diffuseColor * textureColor;

@@ -105,7 +105,7 @@ public:
                 D3D11_BIND_SHADER_RESOURCE,
                 D3D11_CPU_ACCESS_READ,
                 0,
-                DirectX::DDS_LOADER_FORCE_SRGB,
+                DirectX::DDS_LOADER_DEFAULT,
                 reinterpret_cast<ID3D11Resource**>(texture.GetAddressOf()),
                 textureSRV.GetAddressOf()
             );
@@ -120,7 +120,7 @@ public:
                 D3D11_BIND_SHADER_RESOURCE,
                 D3D11_CPU_ACCESS_READ,
                 0,
-                DirectX::WIC_LOADER_FORCE_SRGB,
+                DirectX::WIC_LOADER_DEFAULT,
                 reinterpret_cast<ID3D11Resource**>(texture.GetAddressOf()),
                 textureSRV.GetAddressOf());
         }
